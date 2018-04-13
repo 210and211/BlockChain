@@ -33,6 +33,7 @@ public class FileEventListener implements IFileEventListener {
     @Override
     @Handler
     public void onFileUpdate(IFileUpdateEvent fileEvent) {
+        /**
         System.out.println("File was updated: " + fileEvent.getFile().getName());
         try {
             // download the newest version
@@ -40,19 +41,23 @@ public class FileEventListener implements IFileEventListener {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        /**/
     }
 
     @Override
     @Handler
     public void onFileDelete(IFileDeleteEvent fileEvent) {
+        /**
         System.out.println("File was deleted: " + fileEvent.getFile().getName());
         // delete it at the event receiver as well
         fileEvent.getFile().delete();
+        /**/
     }
 
     @Override
     @Handler
     public void onFileMove(IFileMoveEvent fileEvent) {
+        /**
         try {
             // Move the file to the new destination if it exists
             if (fileEvent.isFile() && fileEvent.getSrcFile().exists()) {
@@ -65,13 +70,16 @@ public class FileEventListener implements IFileEventListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        /**/
     }
 
     @Override
     @Handler
     public void onFileShare(IFileShareEvent fileEvent) {
+        /**
         System.out.println("File was shared by " + fileEvent.getInvitedBy());
         // Currently, no further actions necessary. The invitation is accepted
         // automatically and 'onFileAdd' is called in an instant.
+        /**/
     }
 }
