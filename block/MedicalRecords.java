@@ -7,14 +7,14 @@ public class MedicalRecords {
     private String section;     //就诊科室
     private Document info;      //病历内容，若为获取病历信息则此条为null
 
-    public MedicalRecords(int hospitalID, int patientID, String section, Document info){
+    public MedicalRecords(int hospitalID, long patientID, String section, Document info){
         createOrObtain = true;
         this.hospitalID = hospitalID;
         this.patientID = patientID;
         this.section = section;
         this.info = info;
     }
-    public MedicalRecords(int hospitalID, int patientID, String section){
+    public MedicalRecords(int hospitalID, long patientID, String section){
         createOrObtain = false;
         this.hospitalID = hospitalID;
         this.patientID = patientID;
