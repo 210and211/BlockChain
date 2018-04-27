@@ -1,0 +1,4 @@
+区块链数据结构
+Block是一个区块结构
+BlockService是区块具有功能（如检查等）
+MerkleTrees是M树
