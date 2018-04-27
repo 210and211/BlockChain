@@ -24,8 +24,8 @@ public class BlockMain extends Configuration{
 			previousBlock=new BlockService().getFristBlock();
 		index=previousBlock.index;
 	}
-	BlockMain(int index){
-		this.index=index;
+	BlockMain(int preindex){
+		this.index=preindex;
 		try {
 			FileInputStream inStream = new FileInputStream(blockchainpath+index+".block");
 			ObjectInputStream in = new ObjectInputStream(inStream);

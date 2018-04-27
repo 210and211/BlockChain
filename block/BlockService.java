@@ -33,6 +33,7 @@ public class BlockService  implements Serializable{
     		System.out.println("sign is wrong");
     		return false;
     	}
+		//签名人要验证
     	return true;
     }
 
