@@ -1,3 +1,5 @@
+package p2pPeer;
+
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.api.H2HNode;
 import org.hive2hive.core.api.configs.FileConfiguration;
