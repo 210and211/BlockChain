@@ -1,3 +1,5 @@
+package p2pPeer;
+
 public class Define {
     public final static String PUBLIC_ID = "everyone";
     public final static String PUBLIC_PASSWORD = "very-secret-password";
