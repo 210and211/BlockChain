@@ -1,33 +1,35 @@
 package block;
 
+
 import java.io.Serializable;
 import java.util.ArrayList;
 
 import consensus.JavaMD5RSASign;
 
-public class Block  implements Serializable{
-    int index;
+
+public class Block implements Serializable{
+    long index;
     int version;
     String fatherhash;
     String merkle_root;
     long   timestamp;
     int num;
-    Node root;
-    String[][] data;
+    //Node root;
+    MedicalRecords[] data;
     String[] sign;
-    public Block(int index,String fatherhash,String merkle_root,int num,Node root,String[][] data) {
-    	creatBlock(index,1,fatherhash,merkle_root,System.currentTimeMillis(),num,root,data);	//size很难计算"m树"
+    public Block(long index,String fatherhash,String merkle_root,int num, MedicalRecords[] data) {
+    	creatBlock(index,1,fatherhash,merkle_root,System.currentTimeMillis(),num,data);	//size很难计算"m树"
     }
 
-	public void creatBlock(int index,int version,String fatherhash, String merkle_root, 
-			long timestamp,int num, Node root,String[][] data) {
+	public void creatBlock(long index,int version,String fatherhash, String merkle_root,
+			long timestamp, int num, MedicalRecords[] data) {
         this.index = index;
         this.version=version;
         this.fatherhash=fatherhash;
         this.merkle_root=merkle_root;
         this.timestamp = timestamp;
         this.num=num;
-        this.root=root;
+        //this.root=root;
         this.data = data;
     }
 
@@ -69,8 +71,9 @@ public class Block  implements Serializable{
     }
     
     boolean equals(Block newblock) {
+    	//MedicalRecords[]的equals()可能需要重写
     	if(index==newblock.index&&version==newblock.version&&
-    			fatherhash.equals(newblock.fatherhash)&&
+				fatherhash.equals(newblock.fatherhash)&&
     			merkle_root.equals(newblock.merkle_root)&&
     			timestamp==newblock.timestamp&&num==newblock.num&&
     			data.equals(newblock.data)&&sign.equals(newblock.sign)) {
@@ -79,5 +82,7 @@ public class Block  implements Serializable{
     		return false;
     	}
     }
+
+
 }
 

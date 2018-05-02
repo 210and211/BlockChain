@@ -1,31 +1,45 @@
+package block;
+
+
 import javax.swing.text.Document;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
 import java.util.Date;
 
-public class MedicalRecords {
+public class MedicalRecords implements Serializable {
+    private long preBlockIndex;         //患者前一条记录的区块高度
     private boolean createOrObtain;     //创建病历或获取病历
     private int hospitalID;     //医院ID
     private long patientID;     //患者ID
-    private Date operateTime;   //信息产生时间
-    private String section;     //就诊科室
-    private Document info;      //病历内容，若为获取病历信息则此条为null
+    private Date operateTime = null;   //信息产生时间
+    private String section = null;     //就诊科室
+    private String sign = null;        //主治医生签名
+    private Document info = null;      //病历内容，若为获取病历信息则此条为null
 
-    public MedicalRecords(int hospitalID, long patientID, Date operateTime, String section, Document info){
-        createOrObtain = true;
+    public MedicalRecords(long preBlockIndex, int hospitalID, long patientID, Date operateTime, String section, String sign, Document info){
+        this.preBlockIndex = preBlockIndex;
+        this.createOrObtain = true;
         this.hospitalID = hospitalID;
         this.patientID = patientID;
         this.operateTime = operateTime;
         this.section = section;
+        this.sign = sign;
         this.info = info;
     }
-    public MedicalRecords(int hospitalID, long patientID, Date operateTime, String section){
-        createOrObtain = false;
+    public MedicalRecords(long preBlockIndex, int hospitalID, long patientID, Date operateTime, String section){
+        this.preBlockIndex = preBlockIndex;
+        this.createOrObtain = false;
         this.hospitalID = hospitalID;
         this.patientID = patientID;
         this.operateTime = operateTime;
         this.section = section;
-        this.info = null;
     }
 
+    public long getPreBlockIndex(){
+        return preBlockIndex;
+    }
     public boolean getCreateOrObtion(){
         return createOrObtain;
     }
@@ -35,13 +49,32 @@ public class MedicalRecords {
     public long getPatientID(){
         return patientID;
     }
+    public Date getOperateTime(){
+        return operateTime;
+    }
     public String getSection(){
         return section;
+    }
+    public String getSign(){
+        return sign;
     }
     public Document getInfo() {
         return info;
     }
-    public Date getOperateTime(){
-        return operateTime;
+
+    public byte[] toByteArray () {
+        byte[] bytes = null;
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(bos);
+            oos.writeObject(this);
+            oos.flush();
+            bytes = bos.toByteArray ();
+            oos.close();
+            bos.close();
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+        return bytes;
     }
 }
