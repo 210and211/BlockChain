@@ -1,7 +1,6 @@
 package consensus;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -16,9 +15,10 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
-import java.util.Collections;
 
-public class JavaMD5RSASign extends Configuration{
+import config.Configuration;
+
+public class JavaMD5RSASign {
 	
 	PrivateKey privateKey;
 	PublicKey publicKey;
@@ -51,7 +51,7 @@ public class JavaMD5RSASign extends Configuration{
 	public void setpublickey(String username) {
 		ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(new FileInputStream(publickeypath+username+".key"));
+            ois = new ObjectInputStream(new FileInputStream(Configuration.PUBLICKEY_PATH+username+".key"));
             publicKey =(PublicKey) ois.readObject();
         }catch (Exception e) {
 			// TODO: handle exception
@@ -61,7 +61,7 @@ public class JavaMD5RSASign extends Configuration{
 	public void setprivatekey(String username) {
 		ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(new FileInputStream(privatekeypath+username+".key"));
+            ois = new ObjectInputStream(new FileInputStream(Configuration.PRIVATEKEY_PATH +username+".key"));
             privateKey =(PrivateKey) ois.readObject();
         }catch (Exception e) {
 			// TODO: handle exception
@@ -89,7 +89,7 @@ public class JavaMD5RSASign extends Configuration{
 	Boolean privatekey_store(String username) {
 		FileOutputStream outStream;
 		try {
-			outStream = new FileOutputStream(privatekeypath+username+".key");
+			outStream = new FileOutputStream(Configuration.PRIVATEKEY_PATH +username+".key");
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outStream);
 			objectOutputStream.writeObject(privateKey);
 			return true;
@@ -103,7 +103,7 @@ public class JavaMD5RSASign extends Configuration{
 	Boolean publickey_store(String username) {
 		FileOutputStream outStream;
 		try {
-			outStream = new FileOutputStream(publickeypath+username+".key");
+			outStream = new FileOutputStream(Configuration.PUBLICKEY_PATH+username+".key");
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outStream);
 			objectOutputStream.writeObject(publicKey);
 			return true;

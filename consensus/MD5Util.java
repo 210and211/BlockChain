@@ -3,14 +3,12 @@ package consensus;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class MD5Util {
     /**
      * 计算字符串的MD5值
-     * @param string 明文
      * @return       字符串的MD5值
      */
     public static String md5(byte[] by) {

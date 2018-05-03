@@ -1,20 +1,13 @@
 package consensus;
 
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.ServerSocket;
+import config.Configuration;
+
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 
 public class Byzantine{
 	String myname;;
@@ -41,10 +34,10 @@ public class Byzantine{
 			bsi.get(i).list=bsi.get(i).Sign(myname);
 		}
 		
-		for (int i = 0; i < Configuration.byzantine_peer_count-1; i++) {
+		for (int i = 0; i < Configuration.BYZANTINE_PEER_COUNT -1; i++) {
 			Byzantine_socket_info[] info=new Byzantine_socket_info[bsi.size()];
 			bsi.toArray(info);
-			Thread socketThread=new Thread(new ClientThread(ip_list.get(i),Configuration.port,info,cicle_num));
+			Thread socketThread=new Thread(new ClientThread(ip_list.get(i),Configuration.PORT,info,cicle_num));
 			socketThread.start();
 		}
 	}
@@ -52,13 +45,13 @@ public class Byzantine{
 		for (int i = 0; i < bsi.size(); i++) {
 			set.add(bsi.get(i).get_info());
 		}
-		for (int i = 0; i<(Configuration.byzantine_peer_count+1)/2; i++) {
+		for (int i = 0; i<(Configuration.BYZANTINE_PEER_COUNT +1)/2; i++) {
 		//	cicle_num=(byte) i;
 			System.out.println("send"+i);
 			send((byte) i);
 			while(true) {
 				try {
-					if(cicle[i]>=Configuration.byzantine_peer_count-1) {
+					if(cicle[i]>=Configuration.BYZANTINE_PEER_COUNT -1) {
 						break;
 					}
 					Thread.sleep(300);
@@ -82,7 +75,7 @@ public class Byzantine{
 		
 		
 		for (int j = 0; j < sa.return_num().size(); j++) {
-			if((int)sa.return_num().get(j)>=(Configuration.byzantine_peer_count+1)/2) {
+			if((int)sa.return_num().get(j)>=(Configuration.BYZANTINE_PEER_COUNT +1)/2) {
 				result.add(sa.return_String().get(j));
 			}
 		}
