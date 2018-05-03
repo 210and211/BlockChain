@@ -4,8 +4,7 @@ package block;
 import config.Configuration;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 
 public class BlockService implements Serializable {
@@ -35,6 +34,7 @@ public class BlockService implements Serializable {
             } catch (Exception e) {
                 // TODO Auto-generated catch block
                 block = null;    //网络获取
+
             }
             return block;
         }
@@ -55,7 +55,7 @@ public class BlockService implements Serializable {
     }
 
 
-    //向区块链中添加一个新区块？
+    //生成一个新区块
     public Block createBlock(List<MedicalRecords> dataList, Block previousBlock) {
         MedicalRecords[] data = new MedicalRecords[dataList.size()];
         dataList.toArray(data);
@@ -105,16 +105,104 @@ public class BlockService implements Serializable {
         return true;
     }
 
-    //区块溯源
-    MedicalRecords[] trace_to_source(long patientID,long index) {
-        //根据index获取一个区块，再扫描操作信息，得到后知道上一个index，再依次循环
-        for (;;){
-            getblock(index);
-            ////
+    //区块溯源（由给出的条件，在区块中找出所有符合条件的记录）
+    /**
+    *   根据index获取一个区块，再扫描操作信息
+    *   得到符合条件的记录数组及其前一区块号数组
+    *   遍历前一区块号数组，找出其中符合条件的记录，依次循环
+    *   在寻找过程中向已找过区块记录数组添加，防止重复查找
+    */
+    MedicalRecords[] traceToSource(long index, long patientID) {
 
+        HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
+        Iterator<MedicalRecords> dataIt = data.iterator();
+        HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
+        Iterator<Long> indexArrIt = indexArr.iterator();
+        HashSet<Long> foundIndex = new HashSet<Long>();    //保存已找过的区块号
+
+        long blockIndex;
+        indexArr.add(index);
+
+        while (indexArr.size() != 0) {
+            blockIndex = indexArrIt.next();
+
+            if (foundIndex.add(blockIndex)) {    //若该区块未被找过
+                MedicalRecords[] tmpData = getblock(blockIndex).data;       //提取信息
+                for (int i = 0; i < tmpData.length; i++) {                  //遍历信息
+                    if (tmpData[i].getPatientID() == patientID) {           //匹配信息
+                        data.add(tmpData[i]);                               //成功匹配的放入信息集中
+                        if(tmpData[i].getPreBlockIndex() != 0){             //前一区块高度为0表示无前一区块
+                            indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
+                        }
+                    }
+                }
+            }
+            indexArr.remove(blockIndex);
         }
+        return (MedicalRecords[]) data.toArray();
+    }
 
+    MedicalRecords[] traceToSource(long index, long patientID, String section) {
 
+        HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
+        Iterator<MedicalRecords> dataIt = data.iterator();
+        HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
+        Iterator<Long> indexArrIt = indexArr.iterator();
+        HashSet<Long> foundIndex = new HashSet<Long>();    //保存已找过的区块号
+
+        long blockIndex;
+        indexArr.add(index);
+
+        while (indexArr.size() != 0) {
+            blockIndex = indexArrIt.next();
+
+            if (foundIndex.add(blockIndex)) {    //若该区块未被找过
+                MedicalRecords[] tmpData = getblock(blockIndex).data;       //提取信息
+                for (int i = 0; i < tmpData.length; i++) {                  //遍历信息
+                    if (tmpData[i].getPatientID() == patientID &&
+                            tmpData[i].getSection() == section) {           //匹配信息
+                        data.add(tmpData[i]);                               //成功匹配的放入信息集中
+                        if(tmpData[i].getPreBlockIndex() != 0){             //前一区块高度为0表示无前一区块
+                            indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
+                        }
+                    }
+                }
+            }
+            indexArr.remove(blockIndex);
+        }
+        return (MedicalRecords[]) data.toArray();
+    }
+
+    MedicalRecords[] traceToSource(long index, long patientID, Date startDate, Date endDate) {
+
+        HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
+        Iterator<MedicalRecords> dataIt = data.iterator();
+        HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
+        Iterator<Long> indexArrIt = indexArr.iterator();
+        HashSet<Long> foundIndex = new HashSet<Long>();    //保存已找过的区块号
+
+        long blockIndex;
+        indexArr.add(index);
+
+        while (indexArr.size() != 0) {
+            blockIndex = indexArrIt.next();
+
+            if (foundIndex.add(blockIndex)) {    //若该区块未被找过
+                MedicalRecords[] tmpData = getblock(blockIndex).data;       //提取信息
+                for (int i = 0; i < tmpData.length; i++) {                  //遍历信息
+                    if (tmpData[i].getPatientID() == patientID &&
+                            tmpData[i].getOperateTime().before(endDate) &&
+                            startDate.before(tmpData[i].getOperateTime())) {           //匹配信息
+                        data.add(tmpData[i]);                               //成功匹配的放入信息集中
+                        if(tmpData[i].getPreBlockIndex() != 0){             //前一区块高度为0表示无前一区块
+                            indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
+                        }
+                    }
+                }
+            }
+            indexArr.remove(blockIndex);
+        }
+        return (MedicalRecords[]) data.toArray();
     }
 
 }
