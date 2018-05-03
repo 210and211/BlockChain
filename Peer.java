@@ -27,7 +27,6 @@ public class Peer {
 
     private IH2HNode node;
     private FileAgent fileAgent;
-    ServerSocket Fragmentation_socket;
     int port_Fragmentation_socket;//分片socket通信端口号
     ArrayList<Integer> block_Fragmentationdelete_us;//哪个区块正在进行删除操作 这个需要在节点创造的同时定义一个相同的 然后给此变量赋节点变量的值
     ArrayList<String> ip_list;//所有节点的ip地址
@@ -41,13 +40,7 @@ public class Peer {
 
         IUserManager userManager = node.getUserManager();
         UserCredentials everyone = new UserCredentials(Define.PUBLIC_ID, Define.PUBLIC_PASSWORD,Define.PUBLIC_PIN);
-        try {
-			Fragmentation_socket = new ServerSocket(port_Fragmentation_socket);//启动socket分片监听
-			System.out.println("服务器启动，等待客户端的连接。。。");
-		} catch (IOException e1) {
-			// TODO 自动生成的 catch 块
-			e1.printStackTrace();
-		}//端口号
+       
 		
         try{
             IProcessComponent<Void> register = userManager.createRegisterProcess(everyone);
