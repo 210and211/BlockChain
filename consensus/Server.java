@@ -1,6 +1,7 @@
 package consensus;
 
 import java.io.File;
+import config.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
@@ -79,7 +80,7 @@ public class Server extends Thread{
 	            	String s=(String) ois.readObject();
 	            	int count=Integer.valueOf(s).intValue();
 	            	int exit_blockchain = 0;//区块是否存在 缺省为不存在
-	            	File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(Define.blockchain_high)+".block");
+	            	File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(Configuration.blockchain_high)+".block");
 	            	if(fileAtPeer1.exists()){
 	            		exit_blockchain = 1;
 	            	}
