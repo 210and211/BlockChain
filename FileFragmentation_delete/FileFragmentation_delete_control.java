@@ -1,5 +1,6 @@
 package FileFragmentation_delete;
 import java.util.ArrayList;
+import config.*;
 
 import p2pPeer.*;
 public class FileFragmentation_delete_control extends Thread{
@@ -19,10 +20,10 @@ public class FileFragmentation_delete_control extends Thread{
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}
-    		for( int count=Define.blockchain_high;count>(Define.blockchain_high-blockchain_range);count--){
-    			//Define.block_Fragmentationdelete_us.set(count, 1);
-    			Thread DeletetThread=new Thread(new FileFragmentation_delete(count, Define.port_Fragmentation_socket, Define.ip_list, Define.block_Fragmentationdelete_us,peer));
-    			//Define.block_Fragmentationdelete_us.set(count, 0);
+    		for( int count=Configuration.blockchain_high;count>(Configuration.blockchain_high-blockchain_range);count--){
+    			//Configuration.block_Fragmentationdelete_us.set(count, 1);
+    			Thread DeletetThread=new Thread(new FileFragmentation_delete(count, Configuration.port_Fragmentation_socket, Configuration.ip_list, Configuration.block_Fragmentationdelete_us,peer));
+    			//Configuration.block_Fragmentationdelete_us.set(count, 0);
     		}
     	}
     }

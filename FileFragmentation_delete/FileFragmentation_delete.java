@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import block.*;
-import p2pPeer.Define;
 import p2pPeer.Peer;
+import config.*;
 
 
 
@@ -70,7 +70,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 				socketThread.start();
 			}
 		}
-		Define.block_Fragmentationdelete_us.set((int) blockchain_high, 1);//区块删除操作锁 上锁
+		Configuration.block_Fragmentationdelete_us.set((int) blockchain_high, 1);//区块删除操作锁 上锁
 		
 		
 		for(int i=0;i<peer_number;i++){//广播询问节点区块是否存在
@@ -85,7 +85,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 			//System.out.println("");
 		}
 		
-		Define.block_Fragmentationdelete_us.set((int) blockchain_high, 0);//解锁
+		Configuration.block_Fragmentationdelete_us.set((int) blockchain_high, 0);//解锁
 	}
 	
 	
@@ -182,8 +182,8 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 		int number=this.ip_list.size()-1;
 		int exit_number=this.peer_exist_number;
 		int exit_time=0;//读取区块的存在时间
-		if(exit_time>Define.exit_all_time&&exit_time<Define.exit_only_time){
-			double Probability=(exit_number-Define.least_exit)/(number-Define.least_exit)*(exit_time-Define.exit_all_time)/multiple;
+		if(exit_time>Configuration.exit_all_time&&exit_time<Configuration.exit_only_time){
+			double Probability=(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/multiple;
 			//这个Probability是一个%的复数 来表示概率
 			double floatNumber = Math.random();
 			if(floatNumber<Probability){
@@ -192,8 +192,8 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 			fileAtPeer1.delete();
 		}
 		}
-		else if(exit_time>Define.exit_only_time){
-			if((exit_number-Define.least_exit)>0){
+		else if(exit_time>Configuration.exit_only_time){
+			if((exit_number-Configuration.least_exit)>0){
 				//删除该区块
 				File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(blockchain_high)+".block");//文件名还需修改
 				fileAtPeer1.delete();
