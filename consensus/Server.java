@@ -1,10 +1,10 @@
 package consensus;
 
-import config.Configuration;
-
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
@@ -12,7 +12,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
-
+import p2pPeer.*;
 
 public class Server extends Thread{
 	HashSet<ArrayList<String>> set;
@@ -22,7 +22,7 @@ public class Server extends Thread{
 	public void run(){
 		ServerSocket serverSocket;
 		try {
-			serverSocket = new ServerSocket(Configuration.PORT);
+			serverSocket = new ServerSocket(Configuration.port);
 			while(true){
 				Socket socket=serverSocket.accept();
 				ServerSocketThread sht=new ServerSocketThread(socket);
@@ -44,13 +44,17 @@ public class Server extends Thread{
 	}
 	class ServerSocketThread extends Thread{
 	    Socket socket=null;
-	   
+	    Peer peer;//添加一个peer变量  传入参数为当前结点
 	    ServerSocketThread(Socket socket) {
 	        this.socket = socket;
+	    }
+	    public void peer_value(Peer peer){
+	    	this.peer=peer;
 	    }
 	    @Override
 	    public void run() {
 	        // TODO Auto-generated method stub
+	    	ArrayList<Integer> block_Fragmentationdelete_us;//这个值必须与peer里面的绑定 因为这个变量值时刻在变化
 	        OutputStream os = null;
 	        PrintWriter pw = null;
 	        try {
@@ -73,6 +77,33 @@ public class Server extends Thread{
 	    			}
 	            }else if(mark1==3) {
 	            	String s=(String) ois.readObject();
+	            	int count=Integer.valueOf(s).intValue();
+	            	int exit_blockchain = 0;//区块是否存在 缺省为不存在
+	            	File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(Define.blockchain_high)+".block");
+	            	if(fileAtPeer1.exists()){
+	            		exit_blockchain = 1;
+	            	}
+	            	////此处写一个确认区块是否存在的函数返回值对exit_blockchain赋值有1 没有0 需要传参数peer
+	            	os = socket.getOutputStream();
+		            ObjectOutputStream oos = new ObjectOutputStream(os);
+		            oos.writeByte(exit_blockchain);
+		            oos.flush();
+		            oos.close();
+		            os.close();
+	            }
+	            else if(mark1==4){
+	            	int using_blockchain=0;//区块删除是否在使用 缺省为不在
+	            	String s=(String) ois.readObject();
+	            	int count=Integer.valueOf(s).intValue();
+	            	if(block_Fragmentationdelete_us.get(count)==1){
+	            		using_blockchain=1;
+	            	}
+	            	os = socket.getOutputStream();
+		            ObjectOutputStream oos = new ObjectOutputStream(os);
+		            oos.writeByte(using_blockchain);
+		            oos.flush();
+		            oos.close();
+		            os.close();
 	            }
 	            
 	        } catch (Exception e) {
@@ -100,5 +131,3 @@ public class Server extends Thread{
 	} 
 
 }
-
-
