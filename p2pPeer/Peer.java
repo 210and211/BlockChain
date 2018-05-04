@@ -1,4 +1,4 @@
-package org.hive2hive.examples;
+package p2pPeer;
 
 import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.api.H2HNode;
@@ -9,6 +9,8 @@ import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.IUserManager;
 import org.hive2hive.core.security.UserCredentials;
 import org.hive2hive.processframework.interfaces.IProcessComponent;
+
+import FileFragmentation_delete.FileFragmentation_delete;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -22,14 +24,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
-
+import FileFragmentation_delete.*;
 public class Peer {
 
     private IH2HNode node;
     private FileAgent fileAgent;
-    ServerSocket Fragmentation_socket;
-    int port_Fragmentation_socket;//分片socket通信端口号
-    ArrayList<Integer> block_Fragmentationdelete_us;//哪个区块正在进行删除操作 这个需要在节点创造的同时定义一个相同的 然后给此变量赋节点变量的值
     public Peer(String directory){
         fileAgent = new FileAgent(new File(directory));
         node = H2HNode.createNode(FileConfiguration.createDefault());
@@ -37,13 +36,7 @@ public class Peer {
 
         IUserManager userManager = node.getUserManager();
         UserCredentials everyone = new UserCredentials(Define.PUBLIC_ID, Define.PUBLIC_PASSWORD,Define.PUBLIC_PIN);
-        try {
-			Fragmentation_socket = new ServerSocket(port_Fragmentation_socket);//启动socket分片监听
-			System.out.println("服务器启动，等待客户端的连接。。。");
-		} catch (IOException e1) {
-			// TODO 自动生成的 catch 块
-			e1.printStackTrace();
-		}//端口号
+       
 		
         try{
             IProcessComponent<Void> register = userManager.createRegisterProcess(everyone);
@@ -95,7 +88,7 @@ public class Peer {
         return fileAgent;
     }
     
-  
+   
 
     public static void main(String args[]){
         Peer peer1 = new Peer("C:\\Users\\new\\Desktop\\tmp1");
@@ -115,7 +108,7 @@ public class Peer {
             e.printStackTrace();
         }
         
-
+        Thread delete=new Thread(new FileFragmentation_delete_control(peer1));
     }
 
 }
