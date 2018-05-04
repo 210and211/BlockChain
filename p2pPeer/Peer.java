@@ -25,6 +25,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import FileFragmentation_delete.*;
+import config.*;
 public class Peer {
 
     private IH2HNode node;
@@ -35,7 +36,7 @@ public class Peer {
         node.connect(NetworkConfiguration.createInitial());
 
         IUserManager userManager = node.getUserManager();
-        UserCredentials everyone = new UserCredentials(Define.PUBLIC_ID, Define.PUBLIC_PASSWORD,Define.PUBLIC_PIN);
+        UserCredentials everyone = new UserCredentials(Configuration.PUBLIC_ID, Configuration.PUBLIC_PASSWORD,Configuration.PUBLIC_PIN);
        
 		
         try{
@@ -64,7 +65,7 @@ public class Peer {
         }
 
         IUserManager userManager = node.getUserManager();
-        UserCredentials everyone = new UserCredentials(Define.PUBLIC_ID, Define.PUBLIC_PASSWORD,Define.PUBLIC_PIN);
+        UserCredentials everyone = new UserCredentials(Configuration.PUBLIC_ID, Configuration.PUBLIC_PASSWORD,Configuration.PUBLIC_PIN);
 
         try {
             IProcessComponent<Void> login = userManager.createLoginProcess(everyone, fileAgent);
