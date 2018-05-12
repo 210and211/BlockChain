@@ -33,9 +33,10 @@ public class BlockService implements Serializable {
         } else {
             try {
                 File file = new File(rootPath, String.valueOf(index) + ".block");
-
+                Boolean netORLocal = false;
                 if(!file.exists()){         //如果本地不存在，则通过网络获取
                     fileManager.createDownloadProcess(file).execute();
+                    netORLocal = true;
                 }
                 while(!file.exists()){
                     Thread.sleep(10);   //等待文件下载完成
@@ -43,7 +44,11 @@ public class BlockService implements Serializable {
                 FileInputStream inStream = new FileInputStream(file);
                 ObjectInputStream in = new ObjectInputStream(inStream);
                 block = (Block) in.readObject();
-                file.delete();
+                in.close();
+                inStream.close();
+                if(netORLocal){
+                    file.delete();
+                }
             } catch (Exception e) {
                 block = null;
                 e.printStackTrace();
