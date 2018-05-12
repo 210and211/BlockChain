@@ -10,13 +10,14 @@ import block.BlockService;
 import block.MedicalRecords;
 import config.Configuration;
 import ip_net.My_ip;
-import p2pPeer.Peer;
+import p2pPeer.*;
 
 public class Main {
 
 	public static void main(String[] args) {
 		// TODO 自动生成的方法存根
-		
+		Peer peer=new Peer("./tmp1");
+		BlockService bs=new BlockService(peer);
 
 		String name = "1";
 		MedicalRecords[] records = new MedicalRecords[5];
@@ -116,6 +117,8 @@ public class Main {
 			if(next_ip<ip_list.size()) {
 				SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(next_ip),Configuration.PORT,block);
 				sendblock.start();
+			}else {
+				bs.save(block);
 			}
 		}else {
 			for(int i=0;i<records_result.length;i++) {
@@ -131,12 +134,11 @@ public class Main {
 			}
 			HashSet result_block=server.block_list;
 			System.out.println(result_block.size());
-			BlockService bs=new BlockService();
+			
 			List dataList=new ArrayList<>(result_block);
-			long index=0;									/**上一个区块高度****/
+			long index=Configuration.blockchain_high;									/**上一个区块高度****/
 			block=bs.createBlock(dataList, bs.getblock(index));
-			block.sign(name);
-										//区块签名
+			block.sign(name);			//区块签名
 			SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(1),Configuration.PORT,block);
 			sendblock.start();
 		}
@@ -144,7 +146,6 @@ public class Main {
 		if(ip_list.indexOf(my_ip)==ip_list.size()-1) {
 			if(block!=null) {		//验证区块
 				System.out.println("成功");
-				Configuration.blockchain_high++;
 			}
 		}
 		
