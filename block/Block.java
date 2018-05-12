@@ -54,6 +54,7 @@ public class Block implements Serializable{
 			}
     	}
     	list.add(sign_info);
+    	sign=new String[list.size()];
     	list.toArray(sign);
     }
     
