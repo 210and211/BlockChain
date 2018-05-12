@@ -101,7 +101,7 @@ public class Peer {
         }
 
         try{
-            File fileAtPeer1 = new File(peer1.getFileAgent().getRoot(), "test-file.txt");
+            File fileAtPeer1 = new File(peer1.getFileAgent().getRoot(), "Test-file.txt");
             FileUtils.write(fileAtPeer1, "Hello"); // add some content
             IFileManager fileManager1 = peer1.getNode().getFileManager();
             fileManager1.createAddProcess(fileAtPeer1).execute();
