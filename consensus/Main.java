@@ -43,9 +43,11 @@ public class Main {
 		}
 		
 		ArrayList<String> ip_list = new ArrayList<String>(); 
-		ip_list.add("169.254.140.106");
-		ip_list.add("169.254.87.254");
-		ip_list.add(my_ip);
+		
+		
+		ip_list.add("192.168.1.107");
+		ip_list.add("192.168.1.106");
+		ip_list.add("192.168.1.100");
 		
 		
 
@@ -59,7 +61,12 @@ public class Main {
 		server.set_byzantine_hash(set, bsi, cicle);
 
 		Byzantine bzt = new Byzantine();
-		bzt.set(name, ip_list, set, bsi, cicle);
+		
+		
+		ArrayList<String> ip_list_new = new ArrayList<String>(); 
+		ip_list_new=(ArrayList<String>) ip_list.clone();
+		ip_list_new.remove(my_ip);
+		bzt.set(name, ip_list_new, set, bsi, cicle);
 
 		try {
 			Thread.sleep(2000);
