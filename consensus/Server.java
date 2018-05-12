@@ -16,7 +16,8 @@ import java.util.HashSet;
 import block.Block;
 import block.MedicalRecords;
 import config.Configuration;
-import net.tomp2p.p2p.Peer;
+import p2pPeer.*;
+
 
 public class Server extends Thread {
 	HashSet<ArrayList<String>> set;
@@ -128,7 +129,7 @@ public class Server extends Thread {
 	            	int using_blockchain=0;//区块删除是否在使用 缺省为不在
 	            	String s=(String) ois.readObject();
 	            	int count=Integer.valueOf(s).intValue();
-	            	if(block_Fragmentationdelete_us.get(count)==1){
+	            	if(Configuration.block_Fragmentationdelete_us.get(count)==1){
 	            		using_blockchain=1;
 	            	}
 	            	os = socket.getOutputStream();
