@@ -17,6 +17,9 @@ public class BlockService implements Serializable {
         fileManager = peer.getNode().getFileManager();
         rootPath = peer.getFileAgent().getRoot();
     }
+    public BlockService(){
+        
+    }
 
     //获取区块链的第一个区块
     Block getFristBlock() {

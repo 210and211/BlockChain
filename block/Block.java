@@ -8,14 +8,14 @@ import consensus.JavaMD5RSASign;
 
 
 public class Block implements Serializable{
-    long index;
-    int version;
-    String fatherhash;
-    String merkle_root;
-    long   timestamp;
-    int num;
+	public long index;
+	public int version;
+	public String fatherhash;
+	public String merkle_root;
+    public long   timestamp;
+    public int num;
     //Node root;
-    MedicalRecords[] data;
+    public MedicalRecords[] data;
     String[] sign;
     public Block(long index,String fatherhash,String merkle_root,int num, MedicalRecords[] data) {
     	creatBlock(index,1,fatherhash,merkle_root,System.currentTimeMillis(),num,data);	//size很难计算"m树"
@@ -43,7 +43,7 @@ public class Block implements Serializable{
         String hash=MD5.MD5_32(s);
         return hash;
     }
-    void sign(String username) {
+    public void sign(String username) {
     	JavaMD5RSASign jmrs=new JavaMD5RSASign();
     	jmrs.setprivatekey(username);
     	String sign_info=jmrs.CreateSign(gethash().getBytes());
@@ -57,7 +57,7 @@ public class Block implements Serializable{
     	list.toArray(sign);
     }
     
-    boolean check_sign() {
+    public boolean check_sign() {
     	JavaMD5RSASign jmrs=new JavaMD5RSASign();
     	String s=index+version+fatherhash+merkle_root+timestamp+num;
     	for (int i = 0; i < sign.length/2; i++) {
@@ -70,7 +70,7 @@ public class Block implements Serializable{
     	return true;
     }
     
-    boolean equals(Block newblock) {
+    public boolean equals(Block newblock) {
     	//MedicalRecords[]的equals()可能需要重写
     	if(index==newblock.index&&version==newblock.version&&
 				fatherhash.equals(newblock.fatherhash)&&
