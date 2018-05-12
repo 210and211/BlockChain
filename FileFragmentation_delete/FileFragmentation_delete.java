@@ -197,7 +197,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 		long exit_time=System.currentTimeMillis()-block.timestamp;
 		if(ChronoUnit.DAYS.between(today,Configuration.block_saccessTime.get((int) blockchain_high))>5){
 			if(exit_time>Configuration.exit_all_time&&exit_time<Configuration.exit_only_time){
-				double Probability=(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/multiple;
+				double Probability=(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/(Configuration.exit_only_time-Configuration.exit_all_time);
 				//这个Probability是一个%的复数 来表示概率
 				double floatNumber = Math.random();
 				if(floatNumber<Probability){

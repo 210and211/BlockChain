@@ -15,7 +15,7 @@ public class FileFragmentation_delete_control extends Thread{
 	public void run(){//循环一轮删除节点
     	while(true) {
     		try {
-				Thread.sleep(43200200);//12个小时启动一次
+				Thread.sleep(5000);//12个小时启动一次
 			} catch (InterruptedException e) {
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
