@@ -1,6 +1,7 @@
 package consensus;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,16 +16,17 @@ import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Base64;
+import java.util.Collections;
 
 import config.Configuration;
 
-public class JavaMD5RSASign {
+public class JavaMD5RSASign extends Configuration{
 	
 	PrivateKey privateKey;
 	PublicKey publicKey;
 	
 
-	void createkey() {
+	public void createkey() {
 		KeyPairGenerator keyPairGenerator;
 		try {
 			keyPairGenerator = KeyPairGenerator.getInstance("RSA");
@@ -42,7 +44,7 @@ public class JavaMD5RSASign {
 			e.printStackTrace();
 		}
 	}
-	void setkey(PublicKey publicKey,PrivateKey privateKey) {
+	public void setkey(PublicKey publicKey,PrivateKey privateKey) {
 		this.privateKey=privateKey;
 		this.publicKey=publicKey;
 
@@ -51,7 +53,7 @@ public class JavaMD5RSASign {
 	public void setpublickey(String username) {
 		ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(new FileInputStream(Configuration.PUBLICKEY_PATH+username+".key"));
+            ois = new ObjectInputStream(new FileInputStream(PUBLICKEY_PATH+username+".key"));
             publicKey =(PublicKey) ois.readObject();
         }catch (Exception e) {
 			// TODO: handle exception
@@ -61,7 +63,7 @@ public class JavaMD5RSASign {
 	public void setprivatekey(String username) {
 		ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(new FileInputStream(Configuration.PRIVATEKEY_PATH +username+".key"));
+            ois = new ObjectInputStream(new FileInputStream(PRIVATEKEY_PATH+username+".key"));
             privateKey =(PrivateKey) ois.readObject();
         }catch (Exception e) {
 			// TODO: handle exception
@@ -89,7 +91,7 @@ public class JavaMD5RSASign {
 	Boolean privatekey_store(String username) {
 		FileOutputStream outStream;
 		try {
-			outStream = new FileOutputStream(Configuration.PRIVATEKEY_PATH +username+".key");
+			outStream = new FileOutputStream(PRIVATEKEY_PATH+username+".key");
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outStream);
 			objectOutputStream.writeObject(privateKey);
 			return true;
@@ -103,7 +105,7 @@ public class JavaMD5RSASign {
 	Boolean publickey_store(String username) {
 		FileOutputStream outStream;
 		try {
-			outStream = new FileOutputStream(Configuration.PUBLICKEY_PATH+username+".key");
+			outStream = new FileOutputStream(PUBLICKEY_PATH+username+".key");
 			ObjectOutputStream objectOutputStream = new ObjectOutputStream(outStream);
 			objectOutputStream.writeObject(publicKey);
 			return true;
