@@ -17,6 +17,7 @@ public class FileAgent implements IFileAgent {
         root.mkdirs();
     }
     public FileAgent(File rootDir){
+        rootDir = rootDir.getAbsoluteFile();
         if(rootDir.exists()){
             if(!rootDir.isDirectory()){
                 rootDir.mkdir();
@@ -24,8 +25,7 @@ public class FileAgent implements IFileAgent {
         }else {
             rootDir.mkdir();
         }
-        root = new File(rootDir,UUID.randomUUID().toString());
-        root.mkdir();
+        root = rootDir;
     }
 
     @Override
