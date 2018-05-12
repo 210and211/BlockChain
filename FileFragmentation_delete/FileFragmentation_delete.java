@@ -8,10 +8,15 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
+import java.time.Month;
+import java.time.Period;
+import java.time.temporal.ChronoUnit;
 
 import block.*;
 import p2pPeer.Peer;
 import config.*;
+import ip_net.My_ip;
 
 
 
@@ -35,7 +40,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 //	public 
 	FileFragmentation_delete(int blockchain_high,int port_Fragmentation_socket,ArrayList<String> IP,ArrayList<Integer> block_Fragmentationdelete_us,Peer peer){
 		try {
-			IP.remove(InetAddress.getLocalHost().getHostAddress());//移除本机IP
+			IP.remove(My_ip.getLocalHostLANAddress());//移除本机IP
 			this.peer=peer;
 			this.ip_list=IP;
 			this.blockchain_high=blockchain_high;
@@ -178,27 +183,39 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	public void delete(){
 		//根据时间和节点个数进行删除
 		//需要知道该文件的创造时间和该文件在p2p网络中所拥有的个数
+		
+		//!!!!!!!!!!!!!!!!!!!!区块存贮时间没对接 记录区块最新访问时间没对接
+		//Configuration.exit_only_time.set((int) blockchain_high, LocalDate.now());//访问日期代码 添加到访问函数里面
+		LocalDate today = LocalDate.now();
 		int multiple=0;//计算概率时的时间倍数
 		int number=this.ip_list.size()-1;
 		int exit_number=this.peer_exist_number;
-		int exit_time=0;//读取区块的存在时间
-		if(exit_time>Configuration.exit_all_time&&exit_time<Configuration.exit_only_time){
-			double Probability=(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/multiple;
-			//这个Probability是一个%的复数 来表示概率
-			double floatNumber = Math.random();
-			if(floatNumber<Probability){
-			//删除该区块
-			File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(blockchain_high)+".block");//文件名还需修改
-			fileAtPeer1.delete();
-		}
-		}
-		else if(exit_time>Configuration.exit_only_time){
-			if((exit_number-Configuration.least_exit)>0){
-				//删除该区块
-				File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(blockchain_high)+".block");//文件名还需修改
-				fileAtPeer1.delete();
+		
+		BlockService blockservice=new BlockService();
+		
+		Block block=blockservice.getblock(blockchain_high);
+		long exit_time=System.currentTimeMillis()-block.timestamp;
+		if(ChronoUnit.DAYS.between(today,Configuration.block_saccessTime.get((int) blockchain_high))>5){
+			if(exit_time>Configuration.exit_all_time&&exit_time<Configuration.exit_only_time){
+				double Probability=(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/multiple;
+				//这个Probability是一个%的复数 来表示概率
+				double floatNumber = Math.random();
+				if(floatNumber<Probability){
+					//删除该区块
+					File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(blockchain_high)+".block");//文件名还需修改
+					fileAtPeer1.delete();
+					
+				}
 			}
-		}
+			else if(exit_time>Configuration.exit_only_time){
+				if((exit_number-Configuration.least_exit)>0){
+					//删除该区块
+					File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(blockchain_high)+".block");//文件名还需修改
+					fileAtPeer1.delete();
+				}
+			}
+	}
+		
 	}
 	
 	
