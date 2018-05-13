@@ -4,6 +4,9 @@ import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
+
+import javax.swing.text.Document;
 
 import block.BlockService;
 import block.MedicalRecords;
@@ -49,12 +52,14 @@ public class SendMedicalRecord_thread extends Thread{
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		ArrayList<String> list = new ArrayList<String>();
-		list=(ArrayList<String>) Configuration.ip_list.clone();
+		for(int i=0;i<Configuration.ip_list.length;i++) {
+			list.add(Configuration.ip_list[i]);
+		}
 		BlockService bs=new BlockService();
 		ArrayList<String> ip_list=new POS().get_node(list, 
 				Configuration.BYZANTINE_PEER_COUNT, 
 				bs.getblock(Configuration.blockchain_high).gethash());
-		MedicalRecords record = new MedicalRecords(1,1,1,null,"");
+		MedicalRecords record = new MedicalRecords(1, null,1,1,1,"", "", null);
 		
 		for(int i=0;i<ip_list.size();i++) {
 			new SendMedicalRecord_thread(ip_list.get(i),Configuration.PORT,record).start();
