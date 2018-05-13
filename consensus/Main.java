@@ -65,8 +65,7 @@ public class Main {
 				j++;
 			}
 		}
-		server.hash_list.clear();
-		server.hash_list=null;
+		
 		Block block=null;
 		System.out.println(ip_list.get(0));
 		if(!ip_list.get(0).equals(my_ip)) {
@@ -126,10 +125,7 @@ public class Main {
 			SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(1),Configuration.PORT,block);
 			sendblock.start();
 			System.out.println("成功"+ip_list.get(1));
-			server.set.clear();
-			server.set=new HashSet<ArrayList<String>>();
-			server.bsi.clear();
-			server.bsi=new ArrayList<Byzantine_socket_info>();
+			
 			
 		}
 		
@@ -138,6 +134,12 @@ public class Main {
 				System.out.println("成功");
 			}
 		}
+		server.set.clear();
+		server.set=new HashSet<ArrayList<String>>();
+		server.bsi.clear();
+		server.bsi=new ArrayList<Byzantine_socket_info>();
+		server.hash_list.clear();
+		server.hash_list=null;
 		
 		
 	}
@@ -189,7 +191,6 @@ public class Main {
 			t1=System.currentTimeMillis();
 		}
 		
-
 	}
 
 }
