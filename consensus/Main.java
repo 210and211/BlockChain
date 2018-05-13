@@ -162,10 +162,10 @@ public class Main {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
-//		ArrayList<String> ip_list = new ArrayList<String>();
-//		ip_list.add("192.168.1.107");
-//		ip_list.add("192.168.1.106");
-//		ip_list.add("192.168.1.105");
+
+		Configuration.ip_list.add("192.168.1.107");
+		Configuration.ip_list.add("192.168.1.106");
+		Configuration.ip_list.add("192.168.1.105");
 		
 		long t1=System.currentTimeMillis();
 		while(true) {
