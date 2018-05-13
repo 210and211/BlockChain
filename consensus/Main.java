@@ -148,10 +148,7 @@ public class Main {
 		Server server = new Server(); // 开启服务端
 		server.start();
 		String name = "1";
-	//	MedicalRecords[] records = new MedicalRecords[5];
-	//	for (int i = 0; i < records.length; i++) {
-	//		records[i] = new MedicalRecords(1,1,1,null,"");
-	//	}
+
 		
 		
 		String my_ip="";
@@ -165,23 +162,22 @@ public class Main {
 
 		Configuration.ip_list.add("192.168.1.107");
 		Configuration.ip_list.add("192.168.1.106");
-		Configuration.ip_list.add("192.168.1.105");
+		Configuration.ip_list.add("192.168.1.100");
 		
 		long t1=System.currentTimeMillis();
 		while(true) {
-
+			ArrayList<String> list = new ArrayList<String>();
+			list=(ArrayList<String>) Configuration.ip_list.clone();
+			ArrayList<String> ip_list=new POS().get_node(list, 
+					Configuration.BYZANTINE_PEER_COUNT, 
+					bs.getblock(Configuration.blockchain_high-1).gethash());
 			try {
 				Thread.sleep(t1-System.currentTimeMillis()+Configuration.create_block_time);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if(Configuration.ip_list.contains(my_ip)) {
-				
-				ArrayList<String> list = new ArrayList<String>();
-				list=(ArrayList<String>) Configuration.ip_list.clone();
-				ArrayList<String> ip_list=new POS().get_node(list, Configuration.BYZANTINE_PEER_COUNT, bs.getblock(Configuration.blockchain_high).gethash());
-
+			if(ip_list.contains(my_ip)) {
 				new Main().consensus(bs,peer,server,name,my_ip,ip_list);
 			}
 			t1=System.currentTimeMillis();
