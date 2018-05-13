@@ -38,8 +38,8 @@ public class Main {
 		ArrayList<Byzantine_socket_info> bsi = new ArrayList<Byzantine_socket_info>();
 		bsi.add(b_s_i);
 		
-		int[] cicle = new int[(Configuration.BYZANTINE_PEER_COUNT + 1) / 2];
-		server.set_byzantine_hash(set, bsi, cicle);
+		int[] cicle = server.cicle;
+		server.set_byzantine_hash(set, bsi);
 		
 		ArrayList<String> ip_list_new = new ArrayList<String>(); 
 		ip_list_new=(ArrayList<String>) ip_list.clone();
@@ -52,7 +52,7 @@ public class Main {
 			if (cicle[cicle.length - 1] >= Configuration.BYZANTINE_PEER_COUNT - 1)
 				break;
 		}
-		server.cicle=null;
+		server.cicle=new int[(Configuration.BYZANTINE_PEER_COUNT + 1) / 2];
 		server.set_byzantine_block(bzt.result);
 
 		MedicalRecords[] records_result = new MedicalRecords[bzt.result.size()];
@@ -183,8 +183,6 @@ public class Main {
 			}
 			t1=System.currentTimeMillis();
 		}
-		
-
 	}
 
 }
