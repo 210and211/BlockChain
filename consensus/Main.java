@@ -34,12 +34,12 @@ public class Main {
 		b_s_i.set_information(s);
 		b_s_i.name = name;
 		
-		HashSet<ArrayList<String>> set = new HashSet<ArrayList<String>>(); // 发送端和接收端连接
-		ArrayList<Byzantine_socket_info> bsi = new ArrayList<Byzantine_socket_info>();
+		HashSet<ArrayList<String>> set = server.set;
+		ArrayList<Byzantine_socket_info> bsi = server.bsi;
 		bsi.add(b_s_i);
 		
 		int[] cicle = server.cicle;
-		server.set_byzantine_hash(set, bsi);
+//		server.set_byzantine_hash(set, bsi);
 		
 		ArrayList<String> ip_list_new = new ArrayList<String>(); 
 		ip_list_new=(ArrayList<String>) ip_list.clone();
@@ -126,6 +126,11 @@ public class Main {
 			SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(1),Configuration.PORT,block);
 			sendblock.start();
 			System.out.println("成功"+ip_list.get(1));
+			server.set.clear();
+			server.set=new HashSet<ArrayList<String>>();
+			server.bsi.clear();
+			server.bsi=new ArrayList<Byzantine_socket_info>();
+			
 		}
 		
 		if(ip_list.indexOf(my_ip)==ip_list.size()-1) {
@@ -183,6 +188,7 @@ public class Main {
 			}
 			t1=System.currentTimeMillis();
 		}
+		
 	}
 
 }
