@@ -22,7 +22,7 @@ import p2pPeer.*;
 public class Server extends Thread {
 	HashSet<ArrayList<String>> set;
 	ArrayList<Byzantine_socket_info> bsi;
-	int[] cicle;
+	int[] cicle=new int[(Configuration.BYZANTINE_PEER_COUNT + 1) / 2];
 	HashSet<MedicalRecords> block_list = new HashSet<MedicalRecords>();
 	HashSet<String> hash_list = null;
 	Block block=null;
@@ -46,10 +46,9 @@ public class Server extends Thread {
 
 	}
 
-	void set_byzantine_hash(HashSet<ArrayList<String>> set, ArrayList<Byzantine_socket_info> bsi, int[] cicle) {
+	void set_byzantine_hash(HashSet<ArrayList<String>> set, ArrayList<Byzantine_socket_info> bsi) {
 		this.set = set;
 		this.bsi = bsi;
-		this.cicle = cicle;
 	}
 
 	void set_byzantine_block(HashSet<String> hash_list) {
