@@ -160,14 +160,15 @@ public class Main {
 			e1.printStackTrace();
 		}
 
-		Configuration.ip_list.add("192.168.1.107");
-		Configuration.ip_list.add("192.168.1.106");
-		Configuration.ip_list.add("192.168.1.100");
+		
 		
 		long t1=System.currentTimeMillis();
 		while(true) {
 			ArrayList<String> list = new ArrayList<String>();
-			list=(ArrayList<String>) Configuration.ip_list.clone();
+			for(int i=0;i<Configuration.ip_list.length;i++) {
+				list.add(Configuration.ip_list[i]);
+			}
+			
 			ArrayList<String> ip_list=new POS().get_node(list, 
 					Configuration.BYZANTINE_PEER_COUNT, 
 					bs.getblock(Configuration.blockchain_high-1).gethash());
@@ -183,17 +184,7 @@ public class Main {
 			t1=System.currentTimeMillis();
 		}
 		
-		
-		
 
-		
-
-		
-		
-		
-		
-		
-//		System.exit(0);
 	}
 
 }
