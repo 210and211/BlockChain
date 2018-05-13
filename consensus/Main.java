@@ -66,7 +66,7 @@ public class Main {
 			}
 		}
 		server.hash_list.clear();
-		
+		server.hash_list=null;
 		Block block=null;
 		System.out.println(ip_list.get(0));
 		if(!ip_list.get(0).equals(my_ip)) {
@@ -116,7 +116,7 @@ public class Main {
 				}
 			}
 			HashSet result_block=server.block_list;
-			server.block_list=null;
+			server.block_list=new HashSet<MedicalRecords>();
 			System.out.println(result_block.size());
 			
 			List dataList=new ArrayList<>(result_block);
@@ -189,6 +189,7 @@ public class Main {
 			t1=System.currentTimeMillis();
 		}
 		
+
 	}
 
 }
