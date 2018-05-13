@@ -1,6 +1,7 @@
 package block;
 
 
+import config.Configuration;
 import org.hive2hive.core.api.interfaces.IFileManager;
 import p2pPeer.Peer;
 
@@ -13,12 +14,13 @@ public class BlockService implements Serializable {
     private IFileManager fileManager;
     private File rootPath;
 
-    public BlockService(Peer peer){
+    public BlockService(Peer peer) {
         fileManager = peer.getNode().getFileManager();
         rootPath = peer.getFileAgent().getRoot();
     }
-    public BlockService(){
-        
+
+    public BlockService() {
+
     }
 
     //获取区块链的第一个区块
@@ -37,11 +39,11 @@ public class BlockService implements Serializable {
             try {
                 File file = new File(rootPath, String.valueOf(index) + ".block");
                 Boolean netORLocal = false;
-                if(!file.exists()){         //如果本地不存在，则通过网络获取
+                if (!file.exists()) {         //如果本地不存在，则通过网络获取
                     fileManager.createDownloadProcess(file).execute();
                     netORLocal = true;
                 }
-                while(!file.exists()){
+                while (!file.exists()) {
                     Thread.sleep(10);   //等待文件下载完成
                 }
                 FileInputStream inStream = new FileInputStream(file);
@@ -49,7 +51,7 @@ public class BlockService implements Serializable {
                 block = (Block) in.readObject();
                 in.close();
                 inStream.close();
-                if(netORLocal){
+                if (netORLocal) {
                     file.delete();
                 }
             } catch (Exception e) {
@@ -62,7 +64,7 @@ public class BlockService implements Serializable {
 
 
     //将区块写入文件
-    void save(Block block) {
+    public void save(Block block) {
         try {
             File file = new File(rootPath, String.valueOf(block.index) + ".block");
             FileOutputStream outStream = new FileOutputStream(file);
@@ -128,15 +130,16 @@ public class BlockService implements Serializable {
     }
 
     //区块溯源（由给出的条件，在区块中找出所有符合条件的记录）
+
     /**
-     *  ①将index放入待查询区块集合
-     *  ②从带查询区块集合中取出区块高度
-     *  ③判断该区块是否在已查询过区块集合中，并放入已查询过区块集合
-     *      若不在该集合中，获取该区块，遍历数据，筛选符合条件的，放入记录集合中
-     *  ④从待查询集合中删除该块号
-     *  ⑤回到①，直到待查询集合为空
+     * ①将index放入待查询区块集合
+     * ②从带查询区块集合中取出区块高度
+     * ③判断该区块是否在已查询过区块集合中，并放入已查询过区块集合
+     * 若不在该集合中，获取该区块，遍历数据，筛选符合条件的，放入记录集合中
+     * ④从待查询集合中删除该块号
+     * ⑤回到①，直到待查询集合为空
      */
-    public MedicalRecords[] traceToSource(long index, long patientID) {
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID) {
 
         HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
         HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
@@ -153,13 +156,13 @@ public class BlockService implements Serializable {
 
             if (foundIndex.add(blockIndex)) {    //若该区块未被找过
                 tmpData = getblock(blockIndex).data;       //提取信息
-                int patientIndex = binarySearch(tmpData,patientID);             //二分查找，找出第一个符合的信息索引
+                int patientIndex = binarySearch(tmpData, patientID);             //二分查找，找出第一个符合的信息索引
 
-                if(patientIndex != -1){
-                    for(int i = patientIndex; i < tmpData.length; i++){         //遍历信息
-                        if (tmpData[i].getPatientID() == patientID) {           //匹配信息
+                if (patientIndex != -1) {
+                    for (int i = patientIndex; i < tmpData.length; i++) {       //遍历信息
+                        if (tmpData[i].getPatientID() == patientID && tmpData[i].getCreateOrObtion() == true) { //匹配信息
                             data.add(tmpData[i]);                               //成功匹配的放入信息集中
-                            if(tmpData[i].getPreBlockIndex() != 0){             //前一区块高度为0表示无前一区块
+                            if (tmpData[i].getPreBlockIndex() != 0) {           //前一区块高度为0表示无前一区块
                                 indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
                             }
                         }
@@ -173,23 +176,23 @@ public class BlockService implements Serializable {
     }
 
     //二分查找
-    public int binarySearch(MedicalRecords[] data, long patientID){
+    public int binarySearch(MedicalRecords[] data, long patientID) {
         int low = 0;
         int high = data.length - 1;
         int middle = 0;
 
-        if(patientID < data[low].getPatientID() || patientID >data[high].getPatientID() || low > high){
+        if (patientID < data[low].getPatientID() || patientID > data[high].getPatientID() || low > high) {
             return -1;
         }
 
-        while (low < high){
-            middle = (low + high)/2;
-            if(data[middle].getPatientID() > patientID){
+        while (low < high) {
+            middle = (low + high) / 2;
+            if (data[middle].getPatientID() > patientID) {
                 high = middle - 1;
-            }else if(data[middle].getPatientID() < patientID){
+            } else if (data[middle].getPatientID() < patientID) {
                 low = middle + 1;
-            }else {
-                while (data[middle - 1].getPatientID() == patientID){
+            } else {
+                while (data[middle - 1].getPatientID() == patientID) {
                     middle--;
                 }
                 return middle;
@@ -198,61 +201,55 @@ public class BlockService implements Serializable {
         return -1;
     }
 
-    public MedicalRecords[] traceToSource(long index, long patientID, String sction){
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String sction) {
         return null;
     }
 
-    public MedicalRecords[] traceToSource(long index, long patientID, Date startTime, Date endTime){
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, Date startTime, Date endTime) {
         return null;
     }
 
-    public MedicalRecords[] traceToSource(long index, long patientID, Date startTime, Date endTime, String sction){
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, Date startTime, Date endTime, String sction) {
         return null;
     }
 
-    public static void main(String[] args){
-        Peer peer = new Peer("C:/Users/new/Desktop/tmp");
-        Peer peer1 = new Peer("localhost","C:/Users/new/Desktop/tmp1");
-        BlockService blockService = new BlockService(peer);
-
-        ArrayList<MedicalRecords> medicalRecordsArrayList = new ArrayList<MedicalRecords>();
-        MedicalRecords[] medicalRecords = new MedicalRecords[10];
-        medicalRecords[0] =
-                new MedicalRecords(0, 1, 1, new Date(), "内科", null, null);
-        medicalRecords[1] =
-                new MedicalRecords(0, 2, 2, new Date(), "内科", null, null);
-        medicalRecords[2] =
-                new MedicalRecords(0, 3, 3, new Date(), "内科", null, null);
-        medicalRecords[3] =
-                new MedicalRecords(0, 4, 4, new Date(), "内科", null, null);
-        medicalRecords[4] =
-                new MedicalRecords(0, 5, 5, new Date(), "内科", null, null);
-        medicalRecords[5] =
-                new MedicalRecords(0, 6, 5, new Date(), "内科", null, null);
-        medicalRecords[6] =
-                new MedicalRecords(0, 7, 7, new Date(), "内科", null, null);
-        medicalRecords[7] =
-                new MedicalRecords(0, 8, 8, new Date(), "内科", null, null);
-        medicalRecords[8] =
-                new MedicalRecords(0, 9, 9, new Date(), "内科", null, null);
-        medicalRecords[9] =
-                new MedicalRecords(0, 10, 10, new Date(), "内科", null, null);
-
-        for(int i = 0; i < medicalRecords.length; i++){
-            medicalRecordsArrayList.add(medicalRecords[i]);
+    public MedicalRecords[] getCreMedicalRecords(int opHospitalID, long index, long patientID) {
+        MedicalRecords[] orginData = creOpTraceToSource(index, patientID);
+        for (int i = 0; i < orginData.length; i++) {
+            MedicalRecords opData = new MedicalRecords(
+                    index,
+                    new Date(),
+                    opHospitalID,
+                    orginData[i].getInfoID(),
+                    orginData[i].getHospitalID(),
+                    orginData[i].getPatientID(),
+                    orginData[i].getSection()
+            );
         }
+        /**
+         * 向打包节点发送对病例的调取操作
+         */
+        return orginData;
+    }
 
-        Block block = blockService.createBlock(medicalRecordsArrayList,blockService.getFristBlock());
-        blockService.save(block);
-
-        BlockService blockService1 = new BlockService(peer1);
-
-        //Block block1 = blockService1.getblock(1);
-
-        MedicalRecords[] test = blockService1.traceToSource(1,5);
-
-        for(int i = 0; i < test.length; i++){
-            System.out.printf("hospitalID:%d\tpatientID:%d\n", test[i].getHospitalID(),test[i].getPatientID());
+    public MedicalRecords[] ObtOpTraceToSource(long hospitalID, Date latestTime, Date oldstTime){
+        ArrayList<MedicalRecords> data = new ArrayList<MedicalRecords>();
+        MedicalRecords[] tmpData;
+        for(long i = Configuration.blockchain_high - 1; i >= 0; i--){
+            tmpData = getblock(i).data;
+            boolean flag = false;
+            for(int j = 0; j < tmpData.length; j++){
+                if(tmpData[j].getOpHospitalID() == hospitalID){
+                    flag = true;
+                    if(tmpData[j].getOperateTime().before(latestTime) && oldstTime.before(tmpData[j].getOperateTime())){
+                        data.add(tmpData[j]);
+                    }
+                }
+            }
+            if(flag && data.size() != 0){
+                break;
+            }
         }
+        return (MedicalRecords[]) data.toArray();
     }
 }
