@@ -20,8 +20,8 @@ import p2pPeer.*;
 
 
 public class Server extends Thread {
-	HashSet<ArrayList<String>> set;
-	ArrayList<Byzantine_socket_info> bsi;
+	HashSet<ArrayList<String>> set=new HashSet<ArrayList<String>>();
+	ArrayList<Byzantine_socket_info> bsi=new ArrayList<Byzantine_socket_info>();
 	int[] cicle=new int[(Configuration.BYZANTINE_PEER_COUNT + 1) / 2];
 	HashSet<MedicalRecords> block_list = new HashSet<MedicalRecords>();
 	HashSet<String> hash_list = null;
