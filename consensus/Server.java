@@ -26,6 +26,7 @@ public class Server extends Thread {
 	HashSet<MedicalRecords> block_list = new HashSet<MedicalRecords>();
 	HashSet<String> hash_list = null;
 	Block block=null;
+	ArrayList<MedicalRecords> medicalRecords_list=new ArrayList<MedicalRecords>();
 	@Override
 	public void run() {
 		ServerSocket serverSocket;
@@ -81,9 +82,9 @@ public class Server extends Thread {
 				if (mark1 == 1) {
 					MedicalRecords medicalRecords = (MedicalRecords) ois.readObject();
 					//发给接收方
+					medicalRecords_list.add(medicalRecords);
 					
-					
-				} else if (mark1 == 2) {
+				}  else if (mark1 == 2) {
 					Byte mark2 = ois.readByte();
 					if (mark2 == -1) {
 						MedicalRecords[] list = (MedicalRecords[]) ois.readObject();
