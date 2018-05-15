@@ -99,6 +99,7 @@ public class Byzantine {
 		public void run() {
 			// TODO Auto-generated method stub
 			try {
+				
 				Socket socket = new Socket(ip, port);
 
 				// 2.获取该Socket的输出流，用来向服务器发送信息
@@ -113,6 +114,8 @@ public class Byzantine {
 				socket.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
+				
+				System.out.println(ip);
 				e.printStackTrace();
 			}
 		}

@@ -1,13 +1,13 @@
 package consensus;
 
-import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
-
-import org.apache.commons.io.FileUtils;
 
 import block.Block;
 import block.BlockService;
@@ -17,18 +17,19 @@ import ip_net.My_ip;
 import p2pPeer.*;
 
 public class Main {
-	
+	static int count=0;
 	void consensus(BlockService bs,Peer peer,Server server,String name,String my_ip,ArrayList<String> ip_list) {
 		
 		
 		MedicalRecords[] records=new MedicalRecords[server.medicalRecords_list.size()];
 		server.medicalRecords_list.toArray(records);
 		server.medicalRecords_list.clear();
-		
+		server.medicalRecords_list=new ArrayList<MedicalRecords>();
 		String[] s = new String[records.length]; // 设置发送信息
 		for (int i = 0; i < s.length; i++) {
 			s[i] = MD5Util.md5(records[i].toByteArray());
 		}
+		System.out.println("s:length:"+s.length);
 		Byzantine bzt = new Byzantine();
 		Byzantine_socket_info b_s_i = new Byzantine_socket_info();
 		b_s_i.set_information(s);
@@ -46,16 +47,21 @@ public class Main {
 		ip_list_new.remove(my_ip);
 		bzt.set(name, ip_list_new, set, bsi, cicle);
 
-
 		bzt.cicle(); // 发送
 		while (true) {
 			if (cicle[cicle.length - 1] >= Configuration.BYZANTINE_PEER_COUNT - 1)
 				break;
 		}
-		server.cicle=new int[(Configuration.BYZANTINE_PEER_COUNT + 1) / 2];
+		for(int i=0;i<server.cicle.length;i++) {
+			server.cicle[i]=0;
+		}
+		for(int i=0;i<cicle.length;i++) {
+			System.out.println("cicle:"+cicle[i]);
+		}
 		server.set_byzantine_block(bzt.result);
 
 		MedicalRecords[] records_result = new MedicalRecords[bzt.result.size()];
+		System.out.println("bztlength:"+bzt.result.size());
 		
 		
 		
@@ -68,6 +74,9 @@ public class Main {
 		
 		Block block=null;
 		System.out.println(ip_list.get(0));
+		for(int j=0;j<ip_list.size();j++) {
+			System.out.println(ip_list.get(j));
+		}
 		if(!ip_list.get(0).equals(my_ip)) {
 			SendMedicalRecords_thread sendMedicalRecords = new SendMedicalRecords_thread(ip_list.get(0), Configuration.PORT, records_result);
 			sendMedicalRecords.start();
@@ -80,6 +89,7 @@ public class Main {
 					e.printStackTrace();
 				}
 			}
+			System.out.println("break");
 			block=server.block;
 			server.block=null;
 			MedicalRecords[] data=block.data;
@@ -95,16 +105,22 @@ public class Main {
 					//检查block
 					//对block签名
 			int next_ip=ip_list.indexOf(my_ip)+1;
+			System.out.println("next:"+next_ip);
 			if(next_ip<ip_list.size()) {
 				SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(next_ip),Configuration.PORT,block);
 				sendblock.start();
 				System.out.println("next:"+next_ip);
 			}else {
 				bs.save(block);
+				System.out.println("save");
 			}
 		}else {
-			for(int i=0;i<records_result.length;i++) {
-				server.block_list.add(records_result[i]);
+			
+			System.out.println("block_list:"+server.block_list.size()+"\n "+"bzt.result:"+bzt.result.size());
+			Iterator it=server.block_list.iterator();
+			while(it.hasNext()) {
+				MedicalRecords mr=(MedicalRecords) it.next();
+				System.out.println(MD5Util.md5(mr.toByteArray()));
 			}
 			while (server.block_list.size() != bzt.result.size()) {
 				try {
@@ -119,14 +135,14 @@ public class Main {
 			System.out.println(result_block.size());
 			
 			List dataList=new ArrayList<>(result_block);
-			long index=Configuration.blockchain_high;									/**上一个区块高度****/
-			block=bs.createBlock(dataList, bs.getblock(index));
+//			long index=Configuration.blockchain_high;									/**上一个区块高度****/
+			block=bs.createBlock(dataList, bs.getblock(count));
+			
 			block.sign(name);			//区块签名
 			SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(1),Configuration.PORT,block);
 			sendblock.start();
 			System.out.println("成功"+ip_list.get(1));
-			
-			
+
 		}
 		
 		if(ip_list.indexOf(my_ip)==ip_list.size()-1) {
@@ -140,7 +156,7 @@ public class Main {
 		server.bsi=new ArrayList<Byzantine_socket_info>();
 		server.hash_list.clear();
 		server.hash_list=null;
-		
+		count++;
 		
 	}
 	
@@ -149,6 +165,7 @@ public class Main {
 	
 	public static void main(String[] args) throws IOException {
 		// TODO 自动生成的方法存根
+		System.setOut(new PrintStream(new FileOutputStream("log.txt")));
 		Peer peer=new Peer("tmp1");
 		BlockService bs=new BlockService(peer);
 
@@ -170,6 +187,7 @@ public class Main {
 		
 		
 		long t1=System.currentTimeMillis();
+		
 		while(true) {
 			ArrayList<String> list = new ArrayList<String>();
 			for(int i=0;i<Configuration.ip_list.length;i++) {
@@ -178,19 +196,26 @@ public class Main {
 			
 			ArrayList<String> ip_list=new POS().get_node(list, 
 					Configuration.BYZANTINE_PEER_COUNT, 
-					bs.getblock(Configuration.blockchain_high-1).gethash());
+					bs.getblock(count-1).gethash());
+			System.out.println("第"+count);
 			try {
 				Thread.sleep(t1-System.currentTimeMillis()+Configuration.create_block_time);
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			if(ip_list.contains(my_ip)) {
-				new Main().consensus(bs,peer,server,name,my_ip,ip_list);
-			}
 			t1=System.currentTimeMillis();
+			if(ip_list.contains(my_ip)) {
+				
+				System.out.println("******************\n");
+				new Main().consensus(bs,peer,server,name,my_ip,ip_list);
+				
+				System.out.println("第"+count+"轮完成");
+	//			count++;
+			}
+			
 		}
-		
+
 	}
 
 }

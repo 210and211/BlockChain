@@ -14,7 +14,7 @@ public class POS {
 		
 		return new ArrayList(list.subList(0, select_cout));
 	}
-	ArrayList<String> get_node(ArrayList<String> list,int select_cout,String seed_str){
+	public ArrayList<String> get_node(ArrayList<String> list,int select_cout,String seed_str){
 	    long seed = 0;  
 	    for (int ix = 0; ix < 8; ++ix) {  
 	        seed <<= 8;  
