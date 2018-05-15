@@ -33,16 +33,20 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	public  int[] exits=new int [1000];//记录区块是否存在 与ip_list一起使用 3为连接异常 0为该节点不存在此文件 1为该节点存在
 	ArrayList<String> ip_list_existing;//该文件存在的ip地址
 	int peer_number;//节点数
-	int peer_exist_number=0;//拥有区块的节点数
+	int peer_exist_number=1;//拥有区块的节点数
 	ServerSocket serverSocket;
 	//Boolean flag=true;
 	
 //	public 
-	FileFragmentation_delete(int blockchain_high,int port_Fragmentation_socket,ArrayList<String> IP,ArrayList<Integer> block_Fragmentationdelete_us,Peer peer){
+	FileFragmentation_delete(int blockchain_high,int port_Fragmentation_socket,String[] IP,ArrayList<Integer> block_Fragmentationdelete_us,Peer peer){
 		try {
-			IP.remove(My_ip.getLocalHostLANAddress());//移除本机IP
+			
+			for(int i=0;i<IP.length;i++){
+				ip_list.add(IP[i]);
+			}
+			ip_list.remove(My_ip.getLocalHostLANAddress());//移除本机IP
 			this.peer=peer;
-			this.ip_list=IP;
+			
 			this.blockchain_high=blockchain_high;
 			this.port_Fragmentation_socket=port_Fragmentation_socket;
 			this.block_Fragmentationdelete_us=block_Fragmentationdelete_us;
@@ -188,14 +192,15 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 		//Configuration.exit_only_time.set((int) blockchain_high, LocalDate.now());//访问日期代码 添加到访问函数里面
 		LocalDate today = LocalDate.now();
 		int multiple=0;//计算概率时的时间倍数
-		int number=this.ip_list.size()-1;
+		int number=this.peer_number+1;
 		int exit_number=this.peer_exist_number;
 		
 		BlockService blockservice=new BlockService();
 		
 		Block block=blockservice.getblock(blockchain_high);
 		long exit_time=System.currentTimeMillis()-block.timestamp;
-		if(ChronoUnit.DAYS.between(today,Configuration.block_saccessTime.get((int) blockchain_high))>5){
+		//if(ChronoUnit.DAYS.between(today,Configuration.block_saccessTime.get((int) blockchain_high))>5){
+		if(true){
 			if(exit_time>Configuration.exit_all_time&&exit_time<Configuration.exit_only_time){
 				double Probability=(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/(Configuration.exit_only_time-Configuration.exit_all_time);
 				//这个Probability是一个%的复数 来表示概率

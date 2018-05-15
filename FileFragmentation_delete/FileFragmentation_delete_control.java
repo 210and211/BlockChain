@@ -20,7 +20,7 @@ public class FileFragmentation_delete_control extends Thread{
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}
-    		for( int count=Configuration.blockchain_high;count>(Configuration.blockchain_high-blockchain_range);count--){
+    		for( int count=Configuration.blockchain_high;count>(Configuration.blockchain_high-blockchain_range)&&count>0;count--){
     			//Configuration.block_Fragmentationdelete_us.set(count, 1);
     			Thread DeletetThread=new Thread(new FileFragmentation_delete(count, Configuration.port_Fragmentation_socket, Configuration.ip_list, Configuration.block_Fragmentationdelete_us,peer));
     			//Configuration.block_Fragmentationdelete_us.set(count, 0);
