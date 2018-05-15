@@ -83,7 +83,7 @@ public class Server extends Thread {
 					//发给接收方
 					medicalRecords_list.add(medicalRecords);
 					
-				}  else if (mark1 == 2) {
+				} else if (mark1 == 2) {
 					Byte mark2 = ois.readByte();
 					if (mark2 == -1) {
 						MedicalRecords[] list = (MedicalRecords[]) ois.readObject();
@@ -91,8 +91,12 @@ public class Server extends Thread {
 							Thread.sleep(100);
 						}
 						for (int i = 0; i < list.length; i++) {
-							if (hash_list.contains(MD5Util.md5(list[i].toByteArray()))) {
-								block_list.add(list[i]);
+							synchronized (this) {
+								System.out.println("block"+i+"收到");
+								if (hash_list.contains(MD5Util.md5(list[i].toByteArray()))) {
+									block_list.add(list[i]);
+									System.out.println("block"+i+"存入");
+								}
 							}
 						}
 					} else if(mark2 == -2) {
@@ -102,9 +106,12 @@ public class Server extends Thread {
 						System.out.println(cicle[mark2] + " " + mark2);
 						Byzantine_socket_info[] info = (Byzantine_socket_info[]) ois.readObject();
 						for (int i = 0; i < info.length; i++) {
+							
 							if (info[i].verifySign()) {
-								if (set.add(info[i].get_info())) {
-									bsi.add(info[i]);
+								synchronized (set) {
+									if (set.add(info[i].get_info())) {
+										bsi.add(info[i]);
+									}
 								}
 							}
 						}
@@ -124,8 +131,7 @@ public class Server extends Thread {
 		            oos.flush();
 		            oos.close();
 		            os.close();
-	            }
-	            else if(mark1==4){
+	            } else if(mark1==4){
 	            	int using_blockchain=0;//区块删除是否在使用 缺省为不在
 	            	String s=(String) ois.readObject();
 	            	int count=Integer.valueOf(s).intValue();
