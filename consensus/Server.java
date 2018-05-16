@@ -27,6 +27,7 @@ public class Server extends Thread {
 	HashSet<String> hash_list = null;
 	Block block=null;
 	ArrayList<MedicalRecords> medicalRecords_list=new ArrayList<MedicalRecords>();
+	public static ArrayList<Integer> block_Fragmentationdelete_us=new ArrayList<Integer>();
 	@Override
 	public void run() {
 		ServerSocket serverSocket;
@@ -117,30 +118,28 @@ public class Server extends Thread {
 						}
 					}
 				} else if(mark1==3) {
-	            	String s=(String) ois.readObject();
-	            	int count=Integer.valueOf(s).intValue();
+	            	long high=ois.readLong();
 	            	int exit_blockchain = 0;//区块是否存在 缺省为不存在
-	            	File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), String.valueOf(Configuration.blockchain_high)+".block");
+	            	File fileAtPeer1 = new File(peer.getFileAgent().getRoot(), ""+high+".block");
 	            	if(fileAtPeer1.exists()){
 	            		exit_blockchain = 1;
 	            	}
 	            	////此处写一个确认区块是否存在的函数返回值对exit_blockchain赋值有1 没有0 需要传参数peer
 	            	os = socket.getOutputStream();
 		            ObjectOutputStream oos = new ObjectOutputStream(os);
-		            oos.writeByte(exit_blockchain);
+		            oos.writeInt(exit_blockchain);
 		            oos.flush();
 		            oos.close();
 		            os.close();
 	            } else if(mark1==4){
 	            	int using_blockchain=0;//区块删除是否在使用 缺省为不在
-	            	String s=(String) ois.readObject();
-	            	int count=Integer.valueOf(s).intValue();
-	            	if(Configuration.block_Fragmentationdelete_us.get(count)==1){
+	            	long high=ois.readLong();
+	            	if(block_Fragmentationdelete_us.get((int) high)==1){
 	            		using_blockchain=1;
 	            	}
 	            	os = socket.getOutputStream();
 		            ObjectOutputStream oos = new ObjectOutputStream(os);
-		            oos.writeByte(using_blockchain);
+		            oos.writeInt(using_blockchain);
 		            oos.flush();
 		            oos.close();
 		            os.close();
