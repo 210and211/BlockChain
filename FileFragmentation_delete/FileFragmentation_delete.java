@@ -33,7 +33,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	public  int block_Fragmentationdelete_using=1;//记录该区块分片删除操作是否在其他节点上进行
 	public  int[] exits=new int [1000];//记录区块是否存在 与ip_list一起使用 3为连接异常 0为该节点不存在此文件 1为该节点存在
 	public  int[] finish=new int [1000];//用来在socket通信结束前锁住程序进程
-	ArrayList<String> ip_list_existing;//该文件存在的ip地址
+	//ArrayList<String> ip_list_existing;//该文件存在的ip地址
 	int peer_number;//节点数
 	int peer_exist_number=1;//拥有区块的节点数
 	//Server serverSocket;
@@ -97,7 +97,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 				}
 			}
 		}
-		block_Fragmentationdelete_us.set((int) blockchain_high, 1);//区块删除操作锁 上锁
+		//block_Fragmentationdelete_us.set((int) blockchain_high, 1);//区块删除操作锁 上锁
 		
 		for(int i=0;i<peer_number;i++){
 			finish[i]=0;
@@ -126,7 +126,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 			//System.out.println("");
 		}
 		
-		block_Fragmentationdelete_us.set((int) blockchain_high, 0);//解锁
+		//block_Fragmentationdelete_us.set((int) blockchain_high, 0);//解锁
 	}
 	
 	
@@ -154,8 +154,8 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	            oos.writeByte(3);
 	            oos.writeLong(blockchain_high);
 	            oos.flush();
-	            oos.close();
-	            os.close();
+	            
+	            
 	            InputStream inputStream = socket.getInputStream();
 	            ObjectInputStream br=new ObjectInputStream(inputStream);
 	            int exit=br.readInt();
@@ -165,14 +165,18 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	            else if (exit==1){
 	            	exits[count]=1;
 	            	peer_exist_number++;
-	            	ip_list_existing.add(ip_list.get(count));
+	            	//ip_list_existing.add(ip_list.get(count));
 	            }
+	            
+	            finish[count]=1;
+	            oos.close();
+	            os.close();
 	            socket.close();
 	        } catch (Exception e) {
 	            // TODO Auto-generated catch block
 	            e.printStackTrace();
 	        }
-			finish[count]=1;
+			
 		}
 	}
 	
@@ -200,16 +204,20 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	            oos.writeByte(4);
 	            oos.writeLong(blockchain_high);
 	            oos.flush();
-	            oos.close();
-	            os.close();
+	            
 	            InputStream inputStream = socket.getInputStream();
 	            ObjectInputStream br=new ObjectInputStream(inputStream);
 	            int exit=br.readInt();
 	            if (exit==1){
 	            	block_Fragmentationdelete_using=1;
 	            }
-	            socket.close();
+	            
+	            
 	            finish[count]=1;
+	            oos.close();
+	            os.close();
+	            socket.close();
+	           
 	        } catch (Exception e) {
 	            // TODO Auto-generated catch block
 	            e.printStackTrace();
@@ -229,15 +237,16 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 		int number=this.peer_number+1;
 		int exit_number=this.peer_exist_number;
 		
-		BlockService blockservice=new BlockService();
+		BlockService blockservice=new BlockService(peer);
 		
 		Block block=blockservice.getblock(blockchain_high);
 		long exit_time=System.currentTimeMillis()-block.timestamp;
 		//if(ChronoUnit.DAYS.between(today,Configuration.block_saccessTime.get((int) blockchain_high))>5){
 		if(true){
 			if(exit_time>Configuration.exit_all_time&&exit_time<Configuration.exit_only_time){
-				double Probability=(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/(Configuration.exit_only_time-Configuration.exit_all_time);
+				double Probability=1.0*(exit_number-Configuration.least_exit)/(number-Configuration.least_exit)*(exit_time-Configuration.exit_all_time)/(Configuration.exit_only_time-Configuration.exit_all_time);
 				//这个Probability是一个%的复数 来表示概率
+				System.out.println("mxdsb"+blockchain_high+"  "+Probability);
 				double floatNumber = Math.random();
 				if(floatNumber<Probability){
 					//删除该区块
