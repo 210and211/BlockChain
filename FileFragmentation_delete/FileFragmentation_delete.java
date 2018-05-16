@@ -7,6 +7,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.time.LocalDate;
 import java.time.Month;
@@ -24,17 +25,18 @@ import ip_net.My_ip;
 
 public class FileFragmentation_delete extends Thread {//在开始删除操作时得进行block_Fragmentationdelete_us的标识为1 结束时赋0
 	Peer peer;
-	ArrayList<Integer> block_Fragmentationdelete_us;//哪个区块正在进行删除操作 这个需要在节点创造的同时定义一个相同的 然后给此变量赋节点变量的值
-	ArrayList<String> ip_list;//所有节点的ip地址
+	public static ArrayList<Integer> block_Fragmentationdelete_us;//哪个区块正在进行删除操作 这个需要在节点创造的同时定义一个相同的 然后给此变量赋节点变量的值
+	ArrayList<String> ip_list=new ArrayList<String>();//所有节点的ip地址
 	long blockchain_high;//区块高度
 	int port_Fragmentation_socket;//端口号
 	
 	public  int block_Fragmentationdelete_using=1;//记录该区块分片删除操作是否在其他节点上进行
 	public  int[] exits=new int [1000];//记录区块是否存在 与ip_list一起使用 3为连接异常 0为该节点不存在此文件 1为该节点存在
+	public  int[] finish=new int [1000];//用来在socket通信结束前锁住程序进程
 	ArrayList<String> ip_list_existing;//该文件存在的ip地址
 	int peer_number;//节点数
 	int peer_exist_number=1;//拥有区块的节点数
-	ServerSocket serverSocket;
+	//Server serverSocket;
 	//Boolean flag=true;
 	
 //	public 
@@ -51,7 +53,6 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 			this.port_Fragmentation_socket=port_Fragmentation_socket;
 			this.block_Fragmentationdelete_us=block_Fragmentationdelete_us;
 			peer_number=ip_list.size();
-			serverSocket = new ServerSocket(port_Fragmentation_socket);//端口号
 			System.out.println("服务器启动，等待客户端的连接。。。");
 		} catch (IOException e) {
 			// TODO 自动生成的 catch 块
@@ -68,23 +69,54 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 		if(fileAtPeer1.exists()){
 		while(block_Fragmentationdelete_using==1){//询问当前区块是否在其他节点在删除操作 如果是则休眠再询问
 			try {
-				Thread.sleep(60000);
+				Thread.sleep(1000);
 			} catch (InterruptedException e) {
 				// TODO 自动生成的 catch 块
 				e.printStackTrace();
 			}
 			block_Fragmentationdelete_using=0;
+			
+			for(int i=0;i<peer_number;i++){
+				finish[i]=0;
+			}
+			
 			for(int i=0;i<peer_number;i++){
 				Thread socketThread=new Thread(new QuestThread(ip_list.get(i),blockchain_high,i));
 				socketThread.start();
+				
+			}
+			
+			for(int i=0;i<peer_number;i++){
+				while(finish[i]==0){
+					try {
+						sleep(500);
+					} catch (InterruptedException e) {
+						// TODO 自动生成的 catch 块
+						e.printStackTrace();
+					}
+				}
 			}
 		}
-		Configuration.block_Fragmentationdelete_us.set((int) blockchain_high, 1);//区块删除操作锁 上锁
+		block_Fragmentationdelete_us.set((int) blockchain_high, 1);//区块删除操作锁 上锁
 		
+		for(int i=0;i<peer_number;i++){
+			finish[i]=0;
+		}
 		
 		for(int i=0;i<peer_number;i++){//广播询问节点区块是否存在
 			Thread socketThread=new Thread(new ClientThread(ip_list.get(i),blockchain_high,i));
 			socketThread.start();
+		}
+		
+		for(int i=0;i<peer_number;i++){
+			while(finish[i]==0){
+				try {
+					sleep(500);
+				} catch (InterruptedException e) {
+					// TODO 自动生成的 catch 块
+					e.printStackTrace();
+				}
+			}
 		}
 		
 		
@@ -94,7 +126,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 			//System.out.println("");
 		}
 		
-		Configuration.block_Fragmentationdelete_us.set((int) blockchain_high, 0);//解锁
+		block_Fragmentationdelete_us.set((int) blockchain_high, 0);//解锁
 	}
 	
 	
@@ -103,11 +135,11 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	
 	class ClientThread extends Thread{//询问节点区块是否存在的进程
 		String ip;
-		String blockchain_high;//区块高度
+		long blockchain_high;//区块高度
 		int count;
 		ClientThread(String ip,long blockchain_high,int count){
 			this.ip=ip;
-			this.blockchain_high=String.valueOf(blockchain_high);
+			this.blockchain_high=blockchain_high;
 			this.count=count;
 		}
 		public void run() {
@@ -120,17 +152,17 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	            ObjectOutputStream oos = new ObjectOutputStream(os);
 	           
 	            oos.writeByte(3);
-	            oos.writeBytes(blockchain_high);
+	            oos.writeLong(blockchain_high);
 	            oos.flush();
 	            oos.close();
 	            os.close();
 	            InputStream inputStream = socket.getInputStream();
 	            ObjectInputStream br=new ObjectInputStream(inputStream);
-	            String exit=(String)br.readObject();
-	            if(exit=="0"){
+	            int exit=br.readInt();
+	            if(exit==0){
 	            	exits[count]=0;
 	            }
-	            else if (exit=="1"){
+	            else if (exit==1){
 	            	exits[count]=1;
 	            	peer_exist_number++;
 	            	ip_list_existing.add(ip_list.get(count));
@@ -140,6 +172,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	            // TODO Auto-generated catch block
 	            e.printStackTrace();
 	        }
+			finish[count]=1;
 		}
 	}
 	
@@ -148,11 +181,11 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	
 	class QuestThread extends Thread{//询问其他节点是否在进行区块删除操作的进程
 		String ip;
-		String blockchain_high;//区块高度
+		long blockchain_high;//区块高度
 		int count;
 		QuestThread(String ip,long blockchain_high,int count){
 			this.ip=ip;
-			this.blockchain_high=String.valueOf(blockchain_high);
+			this.blockchain_high=blockchain_high;
 			this.count=count;
 		}
 		public void run() {
@@ -165,17 +198,18 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	            ObjectOutputStream oos = new ObjectOutputStream(os);
 	            
 	            oos.writeByte(4);
-	            oos.writeBytes(blockchain_high);
+	            oos.writeLong(blockchain_high);
 	            oos.flush();
 	            oos.close();
 	            os.close();
 	            InputStream inputStream = socket.getInputStream();
 	            ObjectInputStream br=new ObjectInputStream(inputStream);
-	            String exit=(String)br.readObject();
-	            if (exit=="1"){
+	            int exit=br.readInt();
+	            if (exit==1){
 	            	block_Fragmentationdelete_using=1;
 	            }
 	            socket.close();
+	            finish[count]=1;
 	        } catch (Exception e) {
 	            // TODO Auto-generated catch block
 	            e.printStackTrace();
@@ -188,7 +222,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 		//根据时间和节点个数进行删除
 		//需要知道该文件的创造时间和该文件在p2p网络中所拥有的个数
 		
-		//!!!!!!!!!!!!!!!!!!!!区块存贮时间没对接 记录区块最新访问时间没对接
+		//!!!!!!!!!!!!!!!!!!!! 记录区块最新访问时间没对接
 		//Configuration.exit_only_time.set((int) blockchain_high, LocalDate.now());//访问日期代码 添加到访问函数里面
 		LocalDate today = LocalDate.now();
 		int multiple=0;//计算概率时的时间倍数
