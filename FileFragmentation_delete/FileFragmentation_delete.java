@@ -25,7 +25,7 @@ import ip_net.My_ip;
 
 public class FileFragmentation_delete extends Thread {//在开始删除操作时得进行block_Fragmentationdelete_us的标识为1 结束时赋0
 	Peer peer;
-	public static ArrayList<Integer> block_Fragmentationdelete_us;//哪个区块正在进行删除操作 这个需要在节点创造的同时定义一个相同的 然后给此变量赋节点变量的值
+	public static int[] block_Fragmentationdelete_us;//哪个区块正在进行删除操作 这个需要在节点创造的同时定义一个相同的 然后给此变量赋节点变量的值
 	ArrayList<String> ip_list=new ArrayList<String>();//所有节点的ip地址
 	long blockchain_high;//区块高度
 	int port_Fragmentation_socket;//端口号
@@ -40,7 +40,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	//Boolean flag=true;
 	
 //	public 
-	FileFragmentation_delete(int blockchain_high,int port_Fragmentation_socket,String[] IP,ArrayList<Integer> block_Fragmentationdelete_us,Peer peer){
+	FileFragmentation_delete(int blockchain_high,int port_Fragmentation_socket,String[] IP,int[] block_Fragmentationdelete_us,Peer peer){
 		try {
 			
 			for(int i=0;i<IP.length;i++){
@@ -51,7 +51,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 			
 			this.blockchain_high=blockchain_high;
 			this.port_Fragmentation_socket=port_Fragmentation_socket;
-			this.block_Fragmentationdelete_us=block_Fragmentationdelete_us;
+			FileFragmentation_delete.block_Fragmentationdelete_us=block_Fragmentationdelete_us;
 			peer_number=ip_list.size();
 			System.out.println("服务器启动，等待客户端的连接。。。");
 		} catch (IOException e) {
@@ -97,7 +97,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 				}
 			}
 		}
-		//block_Fragmentationdelete_us.set((int) blockchain_high, 1);//区块删除操作锁 上锁
+		block_Fragmentationdelete_us[(int)blockchain_high%500]=1;//区块删除操作锁 上锁
 		
 		for(int i=0;i<peer_number;i++){
 			finish[i]=0;
@@ -126,7 +126,7 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 			//System.out.println("");
 		}
 		
-		//block_Fragmentationdelete_us.set((int) blockchain_high, 0);//解锁
+		block_Fragmentationdelete_us[(int)blockchain_high%500]=0;//解锁
 	}
 	
 	
