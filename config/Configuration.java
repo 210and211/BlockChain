@@ -16,22 +16,22 @@ import java.util.Properties;
 
 public class Configuration {
 
-	private String PUBLIC_ID = "everyone";
-	private String PUBLIC_PASSWORD = "very-secret-password";
-	private String PUBLIC_PIN = "secret-pin";
-	private String PUBLICKEY_PATH ="./publickey/";
-	private String PRIVATEKEY_PATH ="./privatekey/";
-	private int BYZANTINE_PEER_COUNT =3;
-	private int PORT =8000;
-	private String BLOCKCHAIN_PATH ="./block/";
-	private int BLOCK_DATA_MAX_NUM = 128;
-	private int LEAST_EXIT =1;
-	private int EXIT_ALL_TIME =10000;
-	private int EXIT_ONLY_TIME =1000*3600*48*2;
+	private String PUBLIC_ID;
+	private String PUBLIC_PASSWORD;
+	private String PUBLIC_PIN;
+	private String PUBLICKEY_PATH;
+	private String PRIVATEKEY_PATH;
+	private int BYZANTINE_PEER_COUNT;
+	private int PORT;
+	//private String BLOCKCHAIN_PATH;
+	//private int BLOCK_DATA_MAX_NUM;
+	private int LEAST_EXIT;
+	private int EXIT_ALL_TIME;
+	private int EXIT_ONLY_TIME;
 	private String IP_LIST;
-	private long BLOCKCHAIN_HIGH=21;//区块总高度
-	private ArrayList<LocalDate> BLOCK_SCAESS_TIME =new ArrayList<LocalDate>();//存在区块的最新访问时间
-	private int BLOCKCHAIN_RANGE=500;//定义一个检查删除范围，比如现在区块高度为1000，我们只检查1000-500的区块删除，因为0-500的大概率已经删除到稳定节点个数
+	private long BLOCKCHAIN_HIGH;//区块总高度
+	//private ArrayList<LocalDate> BLOCK_SCAESS_TIME =new ArrayList<LocalDate>();//存在区块的最新访问时间
+	private int BLOCKCHAIN_RANGE;//定义一个检查删除范围，比如现在区块高度为1000，我们只检查1000-500的区块删除，因为0-500的大概率已经删除到稳定节点个数
 
 
 	public Configuration(){
@@ -75,20 +75,12 @@ public class Configuration {
 		return PUBLIC_PIN;
 	}
 
-	public ArrayList<LocalDate> getBLOCK_SCAESS_TIME() {
-		return BLOCK_SCAESS_TIME;
-	}
-
 	public String getPUBLICKEY_PATH() {
 		return PUBLICKEY_PATH;
 	}
 
 	public String getPRIVATEKEY_PATH() {
 		return PRIVATEKEY_PATH;
-	}
-
-	public int getBLOCK_DATA_MAX_NUM() {
-		return BLOCK_DATA_MAX_NUM;
 	}
 
 	public int getBYZANTINE_PEER_COUNT() {
@@ -117,10 +109,6 @@ public class Configuration {
 
 	public int getLEAST_EXIT() {
 		return LEAST_EXIT;
-	}
-
-	public String getBLOCKCHAIN_PATH() {
-		return BLOCKCHAIN_PATH;
 	}
 
 	public String[] getIP_LIST() {
