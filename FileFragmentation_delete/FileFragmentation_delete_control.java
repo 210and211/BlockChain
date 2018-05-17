@@ -1,5 +1,4 @@
 package FileFragmentation_delete;
-import java.util.ArrayList;
 import config.*;
 
 import p2pPeer.*;
@@ -10,12 +9,12 @@ public class FileFragmentation_delete_control extends Thread{
 		this.peer=peer;
 		this.block_us=block_us;
 	}
-	
-	
+
+
 	public void run(){//循环一轮删除节点
-		
-		for( int count=Configuration.blockchain_high;count>(Configuration.blockchain_high-Configuration.blockchain_range)&&count>0;count--){
-			Thread DeletetThread=new Thread(new FileFragmentation_delete(count, Configuration.port_Fragmentation_socket, Configuration.ip_list,block_us,peer));
+		Configuration config = new Configuration();
+		for( int count=config.getBLOCKCHAIN_HIGH();count>(config.getBLOCKCHAIN_HIGH()-config.getBLOCKCHAIN_RANGE())&&count>0;count--){
+			Thread DeletetThread=new Thread(new FileFragmentation_delete(count, config.getPORT(), config.getIP_LIST(),block_us,peer));
 			System.out.println("kaishishanchu"+count+"号区块");
 			DeletetThread.start();
 //    	while(true) {
@@ -31,10 +30,10 @@ public class FileFragmentation_delete_control extends Thread{
 //    			//System.out.println("kaishishanchu"+count+"号区块");
 //    			//DeletetThread.start();
 //    		//}
-   	}
-    }
-	
-	
-	
-	
+		}
+	}
+
+
+
+
 }
