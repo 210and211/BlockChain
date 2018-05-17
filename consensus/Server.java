@@ -27,7 +27,7 @@ public class Server extends Thread {
     HashSet<String> hash_list = null;
     Block block=null;
     ArrayList<MedicalRecords> medicalRecords_list=new ArrayList<MedicalRecords>();
-    public static ArrayList<Integer> block_Fragmentationdelete_us=new ArrayList<Integer>();
+    public  int[] block_Fragmentationdelete_us=new int[Configuration.blockchain_range];
     private Peer peer;//添加一个peer变量  传入参数为当前结点
 
     public Server(Peer peer){
@@ -138,11 +138,11 @@ public class Server extends Thread {
                 } else if(mark1==4){
                     int using_blockchain=0;//区块删除是否在使用 缺省为不在
                     long high=ois.readLong();
-                    /*
-                    if(block_Fragmentationdelete_us.get((int) high)==1){
+                    
+                    if(block_Fragmentationdelete_us[(int)high%500]==1){
                         using_blockchain=1;
                     }
-                    */
+                    
                     os = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(os);
                     oos.writeInt(using_blockchain);
