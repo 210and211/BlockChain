@@ -1,15 +1,14 @@
 package ip_net;
-import java.net.Inet4Address;
+
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.SocketException;
 import java.net.UnknownHostException;
 import java.util.Enumeration;
 
 public class My_ip {
 
  
-
+/**
     public static void main(String[] args) {
         // TODO Auto-generated method stub
         InetAddress ip;
@@ -29,6 +28,7 @@ public class My_ip {
 
         }
     }
+ /**/
 
     // 正确的IP拿法，即优先拿site-local地址
     public static String getLocalHostLANAddress() throws UnknownHostException {
