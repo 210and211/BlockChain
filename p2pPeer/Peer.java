@@ -1,11 +1,9 @@
 package p2pPeer;
 
 import config.Configuration;
-import org.apache.commons.io.FileUtils;
 import org.hive2hive.core.api.H2HNode;
 import org.hive2hive.core.api.configs.FileConfiguration;
 import org.hive2hive.core.api.configs.NetworkConfiguration;
-import org.hive2hive.core.api.interfaces.IFileManager;
 import org.hive2hive.core.api.interfaces.IH2HNode;
 import org.hive2hive.core.api.interfaces.IUserManager;
 import org.hive2hive.core.security.UserCredentials;
@@ -14,8 +12,10 @@ import org.hive2hive.processframework.interfaces.IProcessComponent;
 import java.io.File;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-public class Peer {
 
+
+public class Peer {
+    Configuration config = new Configuration();
     private IH2HNode node;
     private FileAgent fileAgent;
     public Peer(String directory){
@@ -24,9 +24,9 @@ public class Peer {
         node.connect(NetworkConfiguration.createInitial());
 
         IUserManager userManager = node.getUserManager();
-        UserCredentials everyone = new UserCredentials(Configuration.PUBLIC_ID, Configuration.PUBLIC_PASSWORD,Configuration.PUBLIC_PIN);
-       
-		
+        UserCredentials everyone = new UserCredentials(config.getPUBLIC_ID(), config.getPUBLIC_PASSWORD(),config.getPUBLIC_PIN());
+
+
         try{
             IProcessComponent<Void> register = userManager.createRegisterProcess(everyone);
             register.execute();
@@ -42,7 +42,7 @@ public class Peer {
     }
 
     public Peer(String ipAddr, String directory){
-    	
+
         fileAgent = new FileAgent(new File(directory));
         node = H2HNode.createNode(FileConfiguration.createDefault());
         try{
@@ -53,7 +53,7 @@ public class Peer {
         }
 
         IUserManager userManager = node.getUserManager();
-        UserCredentials everyone = new UserCredentials(Configuration.PUBLIC_ID, Configuration.PUBLIC_PASSWORD,Configuration.PUBLIC_PIN);
+        UserCredentials everyone = new UserCredentials(config.getPUBLIC_ID(), config.getPUBLIC_PASSWORD(),config.getPUBLIC_PIN());
 
         try {
             IProcessComponent<Void> login = userManager.createLoginProcess(everyone, fileAgent);
@@ -76,8 +76,8 @@ public class Peer {
     public FileAgent getFileAgent() {
         return fileAgent;
     }
-    
-   
+
+/**
 
     public static void main(String args[]){
         Peer peer = new Peer("tmp");
@@ -93,4 +93,5 @@ public class Peer {
             e.printStackTrace();
         }
     }
+ /**/
 }
