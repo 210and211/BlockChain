@@ -73,7 +73,7 @@ public class Byzantine_socket_info implements Serializable{
 		
 	}
 	
-	
+	/**
 	public static void main(String[] args) {
 		// TODO 自动生成的方法存根
 		ArrayList<String[]> list=new ArrayList<String[]>();
@@ -99,6 +99,7 @@ public class Byzantine_socket_info implements Serializable{
 		System.out.println(b);
 		
 	}
+	 /**/
 	
 	
 	

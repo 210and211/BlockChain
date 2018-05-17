@@ -35,7 +35,6 @@ public class SendBlock_Thread extends Thread {
 			oos.close();
 			os.close();
 			socket.close();
-			System.out.println("sendblock 成功");
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

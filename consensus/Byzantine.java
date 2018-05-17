@@ -18,6 +18,7 @@ public class Byzantine {
 	HashSet<ArrayList<String>> set;
 	ArrayList<Byzantine_socket_info> bsi;
 	HashSet<String> result = new HashSet<>();
+	Configuration config = new Configuration();
 
 	void set(String myname, ArrayList<String> ip_list, HashSet<ArrayList<String>> set,
 			ArrayList<Byzantine_socket_info> bsi, int[] cicle) {
@@ -33,10 +34,10 @@ public class Byzantine {
 			bsi.get(i).list = bsi.get(i).Sign(myname);
 		}
 
-		for (int i = 0; i < Configuration.BYZANTINE_PEER_COUNT - 1; i++) {
+		for (int i = 0; i < config.getBYZANTINE_PEER_COUNT() - 1; i++) {
 			Byzantine_socket_info[] info = new Byzantine_socket_info[bsi.size()];
 			bsi.toArray(info);
-			Thread socketThread = new Thread(new ClientThread(ip_list.get(i), Configuration.PORT, info, cicle_num));
+			Thread socketThread = new Thread(new ClientThread(ip_list.get(i), config.getPORT(), info, cicle_num));
 			socketThread.start();
 		}
 	}
@@ -45,13 +46,13 @@ public class Byzantine {
 		for (int i = 0; i < bsi.size(); i++) {
 			set.add(bsi.get(i).get_info());
 		}
-		for (int i = 0; i < (Configuration.BYZANTINE_PEER_COUNT + 1) / 2; i++) {
+		for (int i = 0; i < (config.getBYZANTINE_PEER_COUNT() + 1) / 2; i++) {
 			// cicle_num=(byte) i;
 			System.out.println("send" + i);
 			send((byte) i);
 			while (true) {
 				try {
-					if (cicle[i] >= Configuration.BYZANTINE_PEER_COUNT - 1) {
+					if (cicle[i] >= config.getBYZANTINE_PEER_COUNT() - 1) {
 						break;
 					}
 					Thread.sleep(300);
@@ -74,7 +75,7 @@ public class Byzantine {
 		sa.count_array(list);
 
 		for (int j = 0; j < sa.return_num().size(); j++) {
-			if (sa.return_num().get(j) >= (Configuration.BYZANTINE_PEER_COUNT + 1) / 2) {
+			if (sa.return_num().get(j) >= (config.getBYZANTINE_PEER_COUNT() + 1) / 2) {
 				result.add(sa.return_String().get(j));
 			}
 		}
@@ -99,7 +100,6 @@ public class Byzantine {
 		public void run() {
 			// TODO Auto-generated method stub
 			try {
-				
 				Socket socket = new Socket(ip, port);
 
 				// 2.获取该Socket的输出流，用来向服务器发送信息
@@ -114,8 +114,6 @@ public class Byzantine {
 				socket.close();
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
-				
-				System.out.println(ip);
 				e.printStackTrace();
 			}
 		}

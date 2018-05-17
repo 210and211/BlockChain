@@ -7,6 +7,8 @@ public class Statistics_StringArray {
 	ArrayList<String> String=new ArrayList();//用于存放字符串
 //	int[] nums=new int [1000];//用于统计字符串的出现频率(int 数组类型)
 	ArrayList<Integer> num=new ArrayList();//同上（arraylist 类型）
+
+	/**
 	static public void main(String[] args){
 		ArrayList<String>[] list=new ArrayList[2];
 		for (int i = 0; i < list.length; i++) {
@@ -23,6 +25,7 @@ public class Statistics_StringArray {
 		A.return_String();
 		
 	}
+	 /**/
 	
 	void count_array(ArrayList[] str){
 	

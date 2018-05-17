@@ -20,14 +20,15 @@ import p2pPeer.*;
 
 
 public class Server extends Thread {
+    Configuration config = new Configuration();
     HashSet<ArrayList<String>> set=new HashSet<ArrayList<String>>();
     ArrayList<Byzantine_socket_info> bsi=new ArrayList<Byzantine_socket_info>();
-    int[] cicle=new int[(Configuration.BYZANTINE_PEER_COUNT + 1) / 2];
+    int[] cicle=new int[(config.getBYZANTINE_PEER_COUNT() + 1) / 2];
     HashSet<MedicalRecords> block_list = new HashSet<MedicalRecords>();
     HashSet<String> hash_list = null;
     Block block=null;
     ArrayList<MedicalRecords> medicalRecords_list=new ArrayList<MedicalRecords>();
-    public  int[] block_Fragmentationdelete_us=new int[Configuration.blockchain_range];
+    public  int[] block_Fragmentationdelete_us=new int[config.getBLOCKCHAIN_RANGE()];
     private Peer peer;//添加一个peer变量  传入参数为当前结点
 
     public Server(Peer peer){
@@ -38,7 +39,7 @@ public class Server extends Thread {
     public void run() {
         ServerSocket serverSocket;
         try {
-            serverSocket = new ServerSocket(Configuration.PORT);
+            serverSocket = new ServerSocket(config.getPORT());
             while (true) {
                 Socket socket = serverSocket.accept();
                 ServerSocketThread sht = new ServerSocketThread(socket);
@@ -138,11 +139,11 @@ public class Server extends Thread {
                 } else if(mark1==4){
                     int using_blockchain=0;//区块删除是否在使用 缺省为不在
                     long high=ois.readLong();
-                    
+
                     if(block_Fragmentationdelete_us[(int)high%500]==1){
                         using_blockchain=1;
                     }
-                    
+
                     os = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(os);
                     oos.writeInt(using_blockchain);
