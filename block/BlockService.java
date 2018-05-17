@@ -26,14 +26,15 @@ public class BlockService implements Serializable {
     //获取区块链的第一个区块
     Block getFristBlock() {
         //MedicalRecords[] data = null;
-        return new Block(0, "00000000000000000000000000000000", "00000000000000000000000000000000", 1, null);
-
+        Block block = new Block(0, "00000000000000000000000000000000", "00000000000000000000000000000000", 1, null);
+        block.timestamp = 0;
+        return block;
     }
 
     //通过区块的索引获取区块，需要获取到区块的文件
     public Block getblock(long index) {
         Block block;
-        if (index == 0) {
+        if (index <= 0) {
             return getFristBlock();
         } else {
             try {
@@ -233,9 +234,10 @@ public class BlockService implements Serializable {
     }
 
     public MedicalRecords[] ObtOpTraceToSource(long hospitalID, Date latestTime, Date oldstTime){
+        Configuration config = new Configuration();
         ArrayList<MedicalRecords> data = new ArrayList<MedicalRecords>();
         MedicalRecords[] tmpData;
-        for(long i = Configuration.blockchain_high - 1; i >= 0; i--){
+        for(long i = config.getBLOCKCHAIN_HIGH() - 1; i >= 0; i--){
             tmpData = getblock(i).data;
             boolean flag = false;
             for(int j = 0; j < tmpData.length; j++){

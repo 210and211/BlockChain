@@ -1,10 +1,9 @@
 package block;
 
 
-import javax.swing.text.Document;
-
 import consensus.MD5Util;
 
+import javax.swing.text.Document;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -101,17 +100,15 @@ public class MedicalRecords implements Serializable {
         return bytes;
     }
     @Override
-    public int hashCode() 
+    public int hashCode()
     {
-        return new Long(patientID).hashCode(); 
-    } 
+        return new Long(patientID).hashCode();
+    }
     @Override
     public boolean equals(Object o) {
-    	MedicalRecords o1=(MedicalRecords) o;
-    	String s=MD5Util.md5(o1.toByteArray());
-    	return MD5Util.md5(toByteArray()).equals(s);
-    	
+        MedicalRecords o1=(MedicalRecords) o;
+        String s=MD5Util.md5(o1.toByteArray());
+        return MD5Util.md5(toByteArray()).equals(s);
+
     }
-    
-    
 }
