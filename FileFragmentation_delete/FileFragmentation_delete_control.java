@@ -13,7 +13,7 @@ public class FileFragmentation_delete_control extends Thread{
 
 	public void run(){//循环一轮删除节点
 		Configuration config = new Configuration();
-		for( int count=config.getBLOCKCHAIN_HIGH();count>(config.getBLOCKCHAIN_HIGH()-config.getBLOCKCHAIN_RANGE())&&count>0;count--){
+		for( long count=config.getBLOCKCHAIN_HIGH();count>(config.getBLOCKCHAIN_HIGH()-config.getBLOCKCHAIN_RANGE())&&count>0;count--){
 			Thread DeletetThread=new Thread(new FileFragmentation_delete(count, config.getPORT(), config.getIP_LIST(),block_us,peer));
 			System.out.println("kaishishanchu"+count+"号区块");
 			DeletetThread.start();
