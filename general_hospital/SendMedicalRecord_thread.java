@@ -1,11 +1,14 @@
 package general_hospital;
 
+import block.BlockService;
 import block.MedicalRecords;
 import config.Configuration;
+import consensus.POS;
 
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class SendMedicalRecord_thread extends Thread{
     Configuration config = new Configuration();
@@ -44,22 +47,24 @@ public class SendMedicalRecord_thread extends Thread{
             e.printStackTrace();
         }
     }
-    /**
+    /**/
     public static void main(String[] args) {
+        Configuration config = new Configuration();
         // TODO Auto-generated method stub
         while(true){
             ArrayList<String> list = new ArrayList<String>();
-            for(int i=0;i<Configuration.ip_list.length;i++) {
-                list.add(Configuration.ip_list[i]);
+            int ipListLen = config.getIP_LIST().length;
+            for(int i=0;i < ipListLen;i++) {
+                list.add(config.getIP_LIST()[i]);
             }
             BlockService bs=new BlockService();
             ArrayList<String> ip_list=new POS().get_node(list,
-                    Configuration.BYZANTINE_PEER_COUNT,
-                    bs.getblock(Configuration.blockchain_high).gethash());
+                    config.getBYZANTINE_PEER_COUNT(),
+                    bs.getblock(config.getBLOCKCHAIN_HIGH()).gethash());
             MedicalRecords record = new MedicalRecords(1, null,1,1,2,"", "", null);
 
             for(int i=0;i<ip_list.size();i++) {
-                new SendMedicalRecord_thread(ip_list.get(i),Configuration.PORT,record).start();
+                new SendMedicalRecord_thread(ip_list.get(i),config.getPORT(),record).start();
             }
             try {
                 Thread.sleep(60000);
