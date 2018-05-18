@@ -167,6 +167,7 @@ public class Main {
     public static void main(String[] args) throws IOException {
         // TODO 自动生成的方法存根
         //System.setOut(new PrintStream(new FileOutputStream("log.txt")));
+        Configuration config = new Configuration();
         Peer peer=new Peer("192.168.1.107","temp1");
         //System.setProperty(DEFAULT_LOG_LEVEL_KEY, "warn");
         //Peer peer=new Peer("temp1");
@@ -189,22 +190,22 @@ public class Main {
 
         Thread delete = new Thread(new FileFragmentation_delete_control(peer,server.block_Fragmentationdelete_us));
         delete.start();
-/**
+/**/
         long t1=System.currentTimeMillis();
         while(true) {
             ArrayList<String> list = new ArrayList<String>();
-            for(int i=0;i<Configuration.ip_list.length;i++) {
-                list.add(Configuration.ip_list[i]);
+            for(int i=0;i<config.getIP_LIST().length;i++) {
+                list.add(config.getIP_LIST()[i]);
             }
             System.out.println("count"+count);
             ArrayList<String> ip_list=new POS().get_node(list,
-                    Configuration.BYZANTINE_PEER_COUNT,
+                    config.getBYZANTINE_PEER_COUNT(),
                     bs.getblock(count-1).gethash());
             for (int o=0;o<ip_list.size();o++){
                 System.out.println(ip_list.get(o));
             }
             try {
-                Thread.sleep(t1-System.currentTimeMillis()+Configuration.create_block_time);
+                Thread.sleep(t1-System.currentTimeMillis()+config.getCREATE_BLOCK_TIME());
             } catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
