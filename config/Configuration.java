@@ -29,6 +29,7 @@ public class Configuration {
 	private int EXIT_ALL_TIME;
 	private int EXIT_ONLY_TIME;
 	private String IP_LIST;
+	private long CREATE_BLOCK_TIME;
 	private long BLOCKCHAIN_HIGH;//区块总高度
 	//private ArrayList<LocalDate> BLOCK_SCAESS_TIME =new ArrayList<LocalDate>();//存在区块的最新访问时间
 	private int BLOCKCHAIN_RANGE;//定义一个检查删除范围，比如现在区块高度为1000，我们只检查1000-500的区块删除，因为0-500的大概率已经删除到稳定节点个数
@@ -109,6 +110,10 @@ public class Configuration {
 
 	public int getLEAST_EXIT() {
 		return LEAST_EXIT;
+	}
+
+	public long getCREATE_BLOCK_TIME() {
+		return CREATE_BLOCK_TIME;
 	}
 
 	public String[] getIP_LIST() {
