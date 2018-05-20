@@ -135,7 +135,7 @@ public class Main {
             System.out.println(result_block.size());
 
             List dataList=new ArrayList<>(result_block);
-            long index=config.getBLOCKCHAIN_HIGH();									/**上一个区块高度****/
+            //long index=config.getBLOCKCHAIN_HIGH();									/**上一个区块高度****/
             block=bs.createBlock(dataList, bs.getblock(count));
             System.out.println("count:  "+count);
 
@@ -168,14 +168,18 @@ public class Main {
         // TODO 自动生成的方法存根
         //System.setOut(new PrintStream(new FileOutputStream("log.txt")));
         Configuration config = new Configuration();
-        Peer peer=new Peer("192.168.1.107","temp1");
-        //System.setProperty(DEFAULT_LOG_LEVEL_KEY, "warn");
-        //Peer peer=new Peer("temp1");
-        BlockService bs=new BlockService(peer);
+        Peer peer;
+        if(config.getP2P_NODE_IP().equals("")){
+            peer = new Peer(config.getBLOCKCHAIN_SAVE_PATH());
+        }else {
+            peer = new Peer(config.getP2P_NODE_IP(),config.getBLOCKCHAIN_SAVE_PATH());
+        }
+
+        BlockService bs = new BlockService(peer);
 
         Server server = new Server(peer); // 开启服务端
         server.start();
-        String name = "2";
+        String name = config.getSERVER_NAME();
 
 
 
@@ -190,7 +194,7 @@ public class Main {
 
         Thread delete = new Thread(new FileFragmentation_delete_control(peer,server.block_Fragmentationdelete_us));
         delete.start();
-/**/
+/**
         long t1=System.currentTimeMillis();
         while(true) {
             ArrayList<String> list = new ArrayList<String>();
