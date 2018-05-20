@@ -16,15 +16,16 @@ import java.util.Properties;
 
 public class Configuration {
 
-	private String PUBLIC_ID;
+	private String BLOCKCHAIN_SAVE_PATH;
+	private String P2P_NODE_IP;
+    private String PUBLIC_ID;
 	private String PUBLIC_PASSWORD;
 	private String PUBLIC_PIN;
+	private String SERVER_NAME;
 	private String PUBLICKEY_PATH;
 	private String PRIVATEKEY_PATH;
 	private int BYZANTINE_PEER_COUNT;
 	private int PORT;
-	//private String BLOCKCHAIN_PATH;
-	//private int BLOCK_DATA_MAX_NUM;
 	private int LEAST_EXIT;
 	private int EXIT_ALL_TIME;
 	private int EXIT_ONLY_TIME;
@@ -42,9 +43,12 @@ public class Configuration {
 			BufferedReader bufferedReader = new BufferedReader(new FileReader("properties.conf"));
 			properties.load(bufferedReader);
 
+			BLOCKCHAIN_SAVE_PATH = properties.getProperty("BLOCKCHAIN_SAVE_PATH");
+            P2P_NODE_IP = properties.getProperty("P2P_NODE_IP");
 			PUBLIC_ID = properties.getProperty("PUBLIC_ID");
 			PUBLIC_PASSWORD = properties.getProperty("PUBLIC_PASSWORD");
 			PUBLIC_PIN = properties.getProperty("PUBLIC_PIN");
+            SERVER_NAME = properties.getProperty("SERVER_NAME");
 			PUBLICKEY_PATH = properties.getProperty("PUBLICKEY_PATH");
 			PRIVATEKEY_PATH = properties.getProperty("PRIVATEKEY_PATH");
 			BYZANTINE_PEER_COUNT = Integer.parseInt(properties.getProperty("BYZANTINE_PEER_COUNT"));
@@ -55,6 +59,7 @@ public class Configuration {
 			IP_LIST = properties.getProperty("IP_LIST");
 			BLOCKCHAIN_HIGH = Long.parseLong(properties.getProperty("BLOCKCHAIN_HIGH"));
 			BLOCKCHAIN_RANGE = Integer.parseInt(properties.getProperty("BLOCKCHAIN_RANGE"));
+			CREATE_BLOCK_TIME = Long.parseLong(properties.getProperty("CREATE_BLOCK_TIME"));
 		} catch (FileNotFoundException e) {
 			System.out.println("ERROR:properties.conf 配置文件未找到。");
 			e.printStackTrace();
@@ -64,7 +69,15 @@ public class Configuration {
 		}
 	}
 
-	public String getPUBLIC_ID() {
+    public String getBLOCKCHAIN_SAVE_PATH() {
+        return BLOCKCHAIN_SAVE_PATH;
+    }
+
+    public String getP2P_NODE_IP() {
+        return P2P_NODE_IP;
+    }
+
+    public String getPUBLIC_ID() {
 		return PUBLIC_ID;
 	}
 
@@ -76,7 +89,11 @@ public class Configuration {
 		return PUBLIC_PIN;
 	}
 
-	public String getPUBLICKEY_PATH() {
+    public String getSERVER_NAME() {
+        return SERVER_NAME;
+    }
+
+    public String getPUBLICKEY_PATH() {
 		return PUBLICKEY_PATH;
 	}
 
