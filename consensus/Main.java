@@ -8,16 +8,15 @@ import config.Configuration;
 import ip_net.My_ip;
 import p2pPeer.Peer;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.net.UnknownHostException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 
 public class Main {
     Configuration config = new Configuration();
-    static int count = 0;
+    static long count = 0;
     void consensus(BlockService bs,Peer peer,Server server,String name,String my_ip,ArrayList<String> ip_list) {
 
 
@@ -42,8 +41,7 @@ public class Main {
         int[] cicle = server.cicle;
 //		server.set_byzantine_hash(set, bsi);
 
-        ArrayList<String> ip_list_new = new ArrayList<String>();
-        ip_list_new=(ArrayList<String>) ip_list.clone();
+        ArrayList<String> ip_list_new = (ArrayList<String>) ip_list.clone();
         ip_list_new.remove(my_ip);
         bzt.set(name, ip_list_new, set, bsi, cicle);
 
@@ -131,7 +129,7 @@ public class Main {
                 }
             }
             HashSet result_block=server.block_list;
-            server.block_list=new HashSet<MedicalRecords>();
+            server.block_list=new HashSet<>();
             System.out.println(result_block.size());
 
             List dataList=new ArrayList<>(result_block);
@@ -155,10 +153,23 @@ public class Main {
         server.hash_list.clear();
         server.hash_list=null;
         server.set.clear();
-        server.set=new HashSet<ArrayList<String>>();
+        server.set=new HashSet<>();
         server.bsi.clear();
-        server.bsi=new ArrayList<Byzantine_socket_info>();
+        server.bsi=new ArrayList<>();
         count++;
+    }
+
+    public long getBlockChainHigh(){
+        File blockChainDir = new File(config.getBLOCKCHAIN_SAVE_PATH());
+        String[] fileSet = blockChainDir.list();
+        long[] numSet = new long[fileSet.length];
+
+        for(int i = 0; i < fileSet.length; i++){
+            numSet[i] = Long.parseLong(fileSet[i].split("\\.")[0]);
+        }
+        Arrays.sort(numSet);
+
+        return numSet[numSet.length - 1];
     }
 
 
@@ -168,6 +179,8 @@ public class Main {
         // TODO 自动生成的方法存根
         //System.setOut(new PrintStream(new FileOutputStream("log.txt")));
         Configuration config = new Configuration();
+        Main main = new Main();
+
         Peer peer;
         if(config.getP2P_NODE_IP().equals("")){
             peer = new Peer(config.getBLOCKCHAIN_SAVE_PATH());
@@ -194,7 +207,8 @@ public class Main {
 
         Thread delete = new Thread(new FileFragmentation_delete_control(peer,server.block_Fragmentationdelete_us));
         delete.start();
-/**
+/**/
+        count = main.getBlockChainHigh();
         long t1=System.currentTimeMillis();
         while(true) {
             ArrayList<String> list = new ArrayList<String>();
