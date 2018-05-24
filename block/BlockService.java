@@ -6,6 +6,7 @@ import org.hive2hive.core.api.interfaces.IFileManager;
 import p2pPeer.Peer;
 
 import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
 
 
@@ -219,7 +220,7 @@ public class BlockService implements Serializable {
         for (int i = 0; i < orginData.length; i++) {
             MedicalRecords opData = new MedicalRecords(
                     index,
-                    new Date(),
+                    LocalDate.now(),
                     opHospitalID,
                     orginData[i].getInfoID(),
                     orginData[i].getHospitalID(),
@@ -233,7 +234,7 @@ public class BlockService implements Serializable {
         return orginData;
     }
 
-    public MedicalRecords[] ObtOpTraceToSource(long hospitalID, Date latestTime, Date oldstTime){
+    public MedicalRecords[] ObtOpTraceToSource(long hospitalID, LocalDate latestTime, LocalDate oldstTime){
         Configuration config = new Configuration();
         ArrayList<MedicalRecords> data = new ArrayList<MedicalRecords>();
         MedicalRecords[] tmpData;
@@ -243,7 +244,7 @@ public class BlockService implements Serializable {
             for(int j = 0; j < tmpData.length; j++){
                 if(tmpData[j].getOpHospitalID() == hospitalID){
                     flag = true;
-                    if(tmpData[j].getOperateTime().before(latestTime) && oldstTime.before(tmpData[j].getOperateTime())){
+                    if(tmpData[j].getOperateTime().isBefore(latestTime) && oldstTime.isBefore(tmpData[j].getOperateTime())){
                         data.add(tmpData[j]);
                     }
                 }
