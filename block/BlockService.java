@@ -177,6 +177,34 @@ public class BlockService implements Serializable {
         return data.toArray(new MedicalRecords[]{});
     }
 
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID) {
+        return null;
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String section) {
+        return null;
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, LocalDate startTime, LocalDate endTime) {
+        return null;
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID, String section) {
+        return null;
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID, LocalDate startTime, LocalDate endTime) {
+        return null;
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String section, LocalDate startTime, LocalDate endTime) {
+        return null;
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, long hospitalID, String sction, LocalDate startTime, LocalDate endTime) {
+        return null;
+    }
+
     //二分查找
     public int binarySearch(MedicalRecords[] data, long patientID) {
         int low = 0;
@@ -201,18 +229,6 @@ public class BlockService implements Serializable {
             }
         }
         return -1;
-    }
-
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String sction) {
-        return null;
-    }
-
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, Date startTime, Date endTime) {
-        return null;
-    }
-
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, Date startTime, Date endTime, String sction) {
-        return null;
     }
 
     public MedicalRecords[] getCreMedicalRecords(int opHospitalID, long index, long patientID) {
