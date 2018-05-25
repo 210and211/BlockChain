@@ -10,12 +10,16 @@ import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 
 import block.Block;
+import block.BlockService;
 import block.MedicalRecords;
 import config.Configuration;
+import face.Interface_Main;
 import p2pPeer.*;
 
 
@@ -26,13 +30,29 @@ public class Server extends Thread {
     int[] cicle=new int[(config.getBYZANTINE_PEER_COUNT() + 1) / 2];
     HashSet<MedicalRecords> block_list = new HashSet<MedicalRecords>();
     HashSet<String> hash_list = null;
-    Block block=null;
+    Block block = null;
     ArrayList<MedicalRecords> medicalRecords_list=new ArrayList<MedicalRecords>();
     public  int[] block_Fragmentationdelete_us=new int[config.getBLOCKCHAIN_RANGE()];
     private Peer peer;//添加一个peer变量  传入参数为当前结点
+    private BlockService blockService;
+    private String[] ipList = config.getIP_LIST();
 
     public Server(Peer peer){
         this.peer = peer;
+        this.blockService = new BlockService(peer);
+    }
+
+    public long getBlockChainHigh(){
+        File blockChainDir = new File(config.getBLOCKCHAIN_SAVE_PATH());
+        String[] fileSet = blockChainDir.list();
+        long[] numSet = new long[fileSet.length];
+
+        for(int i = 0; i < fileSet.length; i++){
+            numSet[i] = Long.parseLong(fileSet[i].split("\\.")[0]);
+        }
+        Arrays.sort(numSet);
+
+        return numSet[numSet.length - 1];
     }
 
     @Override
@@ -147,6 +167,91 @@ public class Server extends Thread {
                     os = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(os);
                     oos.writeInt(using_blockchain);
+                    oos.flush();
+                    oos.close();
+                    os.close();
+                }else if(mark1 == 5){   //返回当前拜占庭节点的ip
+                    os = socket.getOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(os);
+                    POS pos = new POS();
+                    oos.writeObject(
+                            pos.get_node((ArrayList<String>) Arrays.asList(ipList),
+                            config.getBYZANTINE_PEER_COUNT(),
+                            getBlockChainHigh())
+                    );
+                    oos.flush();
+                    oos.close();
+                    os.close();
+                }else if(mark1 == 6){   //返回溯源结果
+                    Interface_Main.Suyuan s =(Interface_Main.Suyuan) ois.readObject();
+                    boolean hospital = (s.gethospitalID() != 0);
+                    boolean time = (s.getTime1() != null && s.getTime2() != null);
+                    boolean section = (s.getSection() != null);
+
+                    MedicalRecords[] data;
+
+                    if(hospital && time && section){
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID(),
+                                s.gethospitalID(),
+                                s.getSection(),
+                                LocalDate.parse(s.getTime1()),
+                                LocalDate.parse(s.getTime2())
+                        );
+                    }else if(!hospital && time && section){
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID(),
+                                s.getSection(),
+                                LocalDate.parse(s.getTime1()),
+                                LocalDate.parse(s.getTime2())
+                        );
+                    }else if(hospital && !time && section){
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID(),
+                                s.gethospitalID(),
+                                s.getSection()
+                        );
+                    }else if(hospital && time && !section){
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID(),
+                                s.gethospitalID(),
+                                LocalDate.parse(s.getTime1()),
+                                LocalDate.parse(s.getTime2())
+                        );
+                    }else if(!hospital && !time && section){
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID(),
+                                s.getSection()
+                        );
+                    }else if(!hospital && time && !section){
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID(),
+                                LocalDate.parse(s.getTime1()),
+                                LocalDate.parse(s.getTime2())
+                        );
+                    }else if(hospital && !time && !section){
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID(),
+                                s.gethospitalID()
+                        );
+                    }else {
+                        data = blockService.creOpTraceToSource(
+                                s.getPreBlockIndex(),
+                                s.getID()
+                        );
+                    }
+
+
+                    os = socket.getOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(os);
+                    oos.writeObject(data);
                     oos.flush();
                     oos.close();
                     os.close();
