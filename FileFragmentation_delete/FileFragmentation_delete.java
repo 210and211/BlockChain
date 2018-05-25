@@ -30,11 +30,11 @@ public class FileFragmentation_delete extends Thread {//在开始删除操作时
 	int peer_exist_number=1;//拥有区块的节点数
 
 
-	FileFragmentation_delete(long blockchain_high,int port_Fragmentation_socket,String[] IP,int[] block_Fragmentationdelete_us,Peer peer){
+	FileFragmentation_delete(long blockchain_high,int port_Fragmentation_socket,ArrayList<String> IP,int[] block_Fragmentationdelete_us,Peer peer){
 		try {
 
-			for(int i=0;i<IP.length;i++){
-				ip_list.add(IP[i]);
+			for(int i=0;i<IP.size();i++){
+				ip_list.add(IP.get(i));
 			}
 			ip_list.remove(My_ip.getLocalHostLANAddress());//移除本机IP
 			this.peer=peer;
