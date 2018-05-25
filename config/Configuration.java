@@ -133,7 +133,7 @@ public class Configuration {
 		return CREATE_BLOCK_TIME;
 	}
 
-	public String[] getIP_LIST() {
+	public ArrayList<String> getIP_LIST() {
 		ArrayList<String> ipList = new ArrayList<String>();
 		JSONParser parser=new JSONParser();
 		try {
@@ -145,7 +145,7 @@ public class Configuration {
 				ipList.add(js.get(String.valueOf(i)).toString());
 			}
 
-			return ipList.toArray(new String[ipList.size()]);
+			return ipList;
 		} catch (ParseException e) {
 			System.out.println("ERROR:IP_LIST json 解析错误。");
 			e.printStackTrace();
@@ -154,6 +154,7 @@ public class Configuration {
 		return null;
 	}
 
+	
 
 	//不要忘记线程互斥
 
