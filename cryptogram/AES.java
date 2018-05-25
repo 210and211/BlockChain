@@ -22,7 +22,7 @@ public class AES {
 	private   String ENCRYPTION_KEY = "RwcmlVpg";
 	private   String ENCRYPTION_IV = "4e5Wa71fYoT7MFEX";
 //	public static
-	AES(String ENCRYPTION_KEY,String ENCRYPTION_IV){
+	public AES(String ENCRYPTION_KEY,String ENCRYPTION_IV){
 		this.ENCRYPTION_KEY=ENCRYPTION_IV;
 		if(ENCRYPTION_IV.length()==16) {		//初始向量必须16长
 			this.ENCRYPTION_IV=ENCRYPTION_IV;
