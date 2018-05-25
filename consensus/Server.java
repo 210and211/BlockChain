@@ -35,7 +35,7 @@ public class Server extends Thread {
     public  int[] block_Fragmentationdelete_us=new int[config.getBLOCKCHAIN_RANGE()];
     private Peer peer;//添加一个peer变量  传入参数为当前结点
     private BlockService blockService;
-    private String[] ipList = config.getIP_LIST();
+    private ArrayList<String> ipList = config.getIP_LIST();
 
     public Server(Peer peer){
         this.peer = peer;
@@ -174,11 +174,7 @@ public class Server extends Thread {
                     os = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(os);
                     POS pos = new POS();
-                    oos.writeObject(
-                            pos.get_node((ArrayList<String>) Arrays.asList(ipList),
-                            config.getBYZANTINE_PEER_COUNT(),
-                            getBlockChainHigh())
-                    );
+                    oos.writeObject(pos.get_node(ipList,config.getBYZANTINE_PEER_COUNT(),getBlockChainHigh()));
                     oos.flush();
                     oos.close();
                     os.close();

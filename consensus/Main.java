@@ -162,6 +162,8 @@ public class Main {
     public long getBlockChainHigh(){
         File blockChainDir = new File(config.getBLOCKCHAIN_SAVE_PATH());
         String[] fileSet = blockChainDir.list();
+        if(fileSet.length==0)
+        	return 0;
         long[] numSet = new long[fileSet.length];
 
         for(int i = 0; i < fileSet.length; i++){
@@ -205,15 +207,15 @@ public class Main {
             e1.printStackTrace();
         }
 
-        Thread delete = new Thread(new FileFragmentation_delete_control(peer,server.block_Fragmentationdelete_us));
-        delete.start();
+//        Thread delete = new Thread(new FileFragmentation_delete_control(peer,server.block_Fragmentationdelete_us));
+//        delete.start();
 /**/
         count = main.getBlockChainHigh();
         long t1=System.currentTimeMillis();
         while(true) {
             ArrayList<String> list = new ArrayList<String>();
-            for(int i=0;i<config.getIP_LIST().length;i++) {
-                list.add(config.getIP_LIST()[i]);
+            for(int i=0;i<config.getIP_LIST().size();i++) {
+                list.add(config.getIP_LIST().get(i));
             }
             System.out.println("count"+count);
             ArrayList<String> ip_list=new POS().get_node(list,
