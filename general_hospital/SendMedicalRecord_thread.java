@@ -53,9 +53,9 @@ public class SendMedicalRecord_thread extends Thread{
         // TODO Auto-generated method stub
         while(true){
             ArrayList<String> list = new ArrayList<String>();
-            int ipListLen = config.getIP_LIST().length;
+            int ipListLen = config.getIP_LIST().size();
             for(int i=0;i < ipListLen;i++) {
-                list.add(config.getIP_LIST()[i]);
+                list.add(config.getIP_LIST().get(i));
             }
             BlockService bs=new BlockService();
             ArrayList<String> ip_list=new POS().get_node(list,
