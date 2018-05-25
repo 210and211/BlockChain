@@ -10,7 +10,16 @@ import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStream;
+import java.net.Socket;
+import java.net.UnknownHostException;
 import java.time.LocalDate;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -27,8 +36,15 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.MouseInputListener;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
-import medic_information.*;
 
+import org.jdom.Document;
+import org.jdom.input.SAXBuilder;
+
+import config.Configuration;
+import medic_information.*;
+import cryptogram.*;
+import block.*;
+import config.*;
 
 
 
@@ -45,6 +61,10 @@ public class Interface_Main extends JFrame{
 	private DrawPanel line=new DrawPanel();
 	private JTextField text1,text3,text2,text4,text5,text6,text7,text8,text9,text10,text11;
 	private JTextArea t;
+	private String key,name,section,sign;
+	private long preBlockIndex,ID;
+	private int infoID,hospitalID;
+	Configuration config = new Configuration();
 	
 	public Interface_Main(String userid, String email){
 		try {
@@ -156,8 +176,8 @@ public class Interface_Main extends JFrame{
 		 * 上传，解密，提取，溯源
 		 * 
 		 */
-		btn_zhanghu=new JButton(new ImageIcon("image_interface/账户1.jpg"));
-		btn_zhanghu.setRolloverIcon(new ImageIcon("image_interface/账户2.jpg"));
+		btn_zhanghu=new JButton(new ImageIcon("image_interface/账户1.png"));
+		btn_zhanghu.setRolloverIcon(new ImageIcon("image_interface/账户2.png"));
 		btn_zhanghu.setVisible(true);
 		btn_zhanghu.setBounds(0,161, 180, 69);
 		frame.add(btn_zhanghu);
@@ -480,11 +500,82 @@ public class Interface_Main extends JFrame{
 				panel_filework.add(jsp);
 
 			}
-			if(event==submit1){
+			if(event==submit1){//病例上传
+				//首先获取当前拜占庭节点ip，之后选取一个ip发送信息
+					ArrayList<String> bztIP=null;
+					Socket socket;
+					try {
+					socket = new Socket(config.getIP_LIST()[0],config.getPORT());
+					OutputStream os = socket.getOutputStream();
+					ObjectOutputStream oos = new ObjectOutputStream(os);
+					oos.writeByte(5);
+					oos.flush();
+
+					InputStream is = socket.getInputStream();
+					ObjectInputStream ois = new ObjectInputStream(is);
+					bztIP = (ArrayList<String>) ois.readObject();
+					oos.close();
+					os.close();
+					socket.close();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (ClassNotFoundException e1) {
+					System.out.println("ArrayList<String>类未能正确解析.");
+					e1.printStackTrace();
+				}
+
 				Xml_produce.BulidXml(text1.getText(),text2.getText(),text4.getText(),text3.getText(),text6.getText(),text5.getText(),
 				text7.getText(),text8.getText(),t.getText(),text10.getText(),text11.getText());
+				AES aes =new AES("key","4e5Wa71fYoT7MFE1");
+				String src = "xml\\";
+				byte[] encrypted = aes.encrypt(src+"test.xml");
+				aes.save(encrypted, src+"2.xml");
+				try {
+					Document doc=Xml_produce.Xml2Doc("xml\\test.xml");
+					MedicalRecords upload=new MedicalRecords(preBlockIndex, LocalDate.now(), infoID, hospitalID, ID, section, sign, doc);
+					for(int i=0;i<bztIP.size();i++){
+						Socket socket2 = new Socket(bztIP.get(i), config.getPORT());
+
+						// 2.获取该Socket的输出流，用来向服务器发送信息
+						OutputStream os = socket2.getOutputStream();
+						ObjectOutputStream oos = new ObjectOutputStream(os);
+						
+						oos.writeByte(1);
+						oos.writeObject(upload);
+						oos.flush();
+						socket2.close();
+					}
+
+				} catch (Exception e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
+				
 			}
-			if(event==submit2){
+			if(event==submit2){//与服务端连接进行溯源
+				Socket socket;
+				try {
+					socket = new Socket(config.getIP_LIST()[0], config.getPORT());
+					OutputStream os = socket.getOutputStream();
+					ObjectOutputStream oos = new ObjectOutputStream(os);
+					
+					oos.writeByte(1);
+
+					oos.flush();
+				} catch (UnknownHostException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
+
+				// 2.获取该Socket的输出流，用来向服务器发送信息
+				
+
+		
+				
+				
 				
 			}
 			if(event==btn_zhanghu){
@@ -507,42 +598,45 @@ public class Interface_Main extends JFrame{
 		        panel_filework.add(text1);
 		        
 		        JLabel Label2 = new JLabel("ID");
-		        Label2.setBounds(250, 20,50, 40);
+		        Label2.setBounds(50, 80,50, 40);
 		        Label2.setForeground(Color.gray);
 		        Label2.setFont(new Font("微软雅黑",Font.PLAIN,18));
 		        Label2.setVisible(true);
 		        panel_filework.add(Label2);
 		        
 		        JTextField text2 = new JTextField();
-		        text2.setBounds(300, 20, 100, 40);
+		        text2.setBounds(100, 80, 100, 40);
 		        text2.setFont(new Font("微软雅黑",Font.PLAIN,18));
 		        panel_filework.add(text2);
 				
 		        
 		        JLabel Label3 = new JLabel("性别");
-		        Label3.setBounds(450, 20,50, 40);
+		        Label3.setBounds(50, 140,50, 40);
 		        Label3.setForeground(Color.gray);
 		        Label3.setFont(new Font("微软雅黑",Font.PLAIN,18));
 		        Label3.setVisible(true);
 		        panel_filework.add(Label3);
 		        
 		        text3 = new JTextField();
-		        text3.setBounds(500, 20, 50, 40);
+		        text3.setBounds(100, 140, 50, 40);
 		        text3.setFont(new Font("微软雅黑",Font.PLAIN,18));
 		        panel_filework.add(text3);
 		        
 		        
-		        JLabel Label4 = new JLabel("年龄");
-		        Label4.setBounds(50, 80,50, 40);
+		        JLabel Label4 = new JLabel("密钥");
+		        Label4.setBounds(50, 200,50, 40);
 		        Label4.setForeground(Color.gray);
 		        Label4.setFont(new Font("微软雅黑",Font.PLAIN,18));
 		        Label4.setVisible(true);
 		        panel_filework.add(Label4);
 
 		        text4 = new JTextField();
-		        text4.setBounds(100, 80, 50, 40);
+		        text4.setBounds(100, 200, 50, 40);
 		        text4.setFont(new Font("微软雅黑",Font.PLAIN,18));
 		        panel_filework.add(text4);
+		        
+		        
+		        
 			}
 		}
 	}
