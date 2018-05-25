@@ -95,4 +95,12 @@ public class PatientCard implements Serializable{
     public void addKey(int hospitalID, String key){
         this.key.put(hospitalID,key);
     }
+    
+    public String getKey(int hospitalID){
+        return key.get(hospitalID);
+    }
+    
+    public static void main(String[] args){
+        
+    }
 }
