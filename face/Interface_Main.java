@@ -87,6 +87,13 @@ public class Interface_Main extends JFrame{
 		 * 以下是整个窗口的设计，包括
 		 * 整个窗口的大小，背景，出现的位置
 		 */
+		
+		ID=001;
+		hospitalID=002;
+		preBlockIndex=0;
+		sign="隔壁老王";
+		section="外科";
+		
 		frame = new JFrame("主界面");
 		Toolkit kit = Toolkit.getDefaultToolkit();
 		Dimension screenSize = kit.getScreenSize();
@@ -510,7 +517,7 @@ public class Interface_Main extends JFrame{
 				ArrayList<String> bztIP=null;
 				Socket socket;
 				try {
-					socket = new Socket(config.getIP_LIST()[0],config.getPORT());
+					socket = new Socket(config.getIP_LIST().get(0),config.getPORT());
 					OutputStream os = socket.getOutputStream();
 					ObjectOutputStream oos = new ObjectOutputStream(os);
 					oos.writeByte(5);
@@ -562,7 +569,7 @@ public class Interface_Main extends JFrame{
 				int hospitalid=Integer.parseInt(text2.getText());
 				Suyuan S=new Suyuan(preBlockIndex, ID, hospitalid, text1.getText(), text3.getText(), text4.getText());
 				try {
-					socket = new Socket(config.getIP_LIST()[0], config.getPORT());
+					socket = new Socket(config.getIP_LIST().get(0), config.getPORT());
 					OutputStream os = socket.getOutputStream();
 					ObjectOutputStream oos = new ObjectOutputStream(os);
 
