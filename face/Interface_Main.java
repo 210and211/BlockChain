@@ -70,6 +70,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JFileChooser jfc=new JFileChooser();
+	PatientCard A;
 
 	Configuration config = new Configuration();
 
@@ -519,7 +520,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 			}
 			if(event==submit1){//病例上传
 				//首先获取当前拜占庭节点ip，之后选取一个ip发送信息
-				PatientCard A= PatientCard.getPatientCard(text1.getText());
+				//PatientCard A= PatientCard.getPatientCard(text1.getText());
 				while(true){
 				ArrayList<String> bztIP=null;
 				Socket socket;
@@ -548,8 +549,8 @@ public class Interface_Main extends JFrame implements ActionListener{
 						text7.getText(),text8.getText(),t.getText(),text10.getText(),text11.getText());
 				
 				
-				
-				key=A.getKey(Integer.parseInt(text2.getText()));
+				A.addKey(10010, "10010");//
+				key=A.getKey(Integer.parseInt(text6.getText()));
 				AES aes =new AES(key,"4e5Wa71fYoT7MFE1");
 				String src = "xml\\";
 				byte[] encrypted = aes.encrypt(src+"test.xml");
@@ -558,7 +559,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 				int number=0;
 				try {
 					Document doc=Xml_produce.Xml2Doc("xml\\test.xml");
-					MedicalRecords upload=new MedicalRecords(preBlockIndex, LocalDate.now(), infoID, Integer.parseInt(text2.getText()), ID, section, sign, doc);
+					MedicalRecords upload=new MedicalRecords(preBlockIndex,  LocalDate.parse(text5.getText()), infoID, Integer.parseInt(text6.getText()), ID,text7.getText(), text11.getText(), doc);
 					for(int i=0;i<bztIP.size();i++){
 						Socket socket2 = new Socket(bztIP.get(i), config.getPORT());
 
@@ -576,7 +577,8 @@ public class Interface_Main extends JFrame implements ActionListener{
 						//lock[i]=br.readBoolean();
 						if(br.readBoolean()==true)
 							number++;
-								
+						oos.close();
+						br.close();
 						socket2.close();
 					}
 
@@ -682,10 +684,10 @@ public class Interface_Main extends JFrame implements ActionListener{
 		        fileworkscan_read.addActionListener(this);
 		        panel_filework.add(fileworkscan_read);
 		        
-		        t =new JTextArea();
-				t.setEditable(true);
-				t.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				JScrollPane scroll = new JScrollPane(t);
+		        read =new JTextArea();
+				read.setEditable(true);
+				read.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				JScrollPane scroll = new JScrollPane(read);
 				//把定义的JTextArea放到JScrollPane里面去
 				//分别设置水平和垂直滚动条自动出现
 				scroll.setHorizontalScrollBarPolicy(
@@ -713,12 +715,12 @@ public class Interface_Main extends JFrame implements ActionListener{
 				} 	
 	        }
 			if (event == fileworkscan_read) {
-				PatientCard A= PatientCard.getPatientCard(text1.getText());
+				A= PatientCard.getPatientCard(text1.getText());
 				ID=A.getPatientID();
 				infoID=A.getInfoID();
 				preBlockIndex=A.getPreBlockIndex();
 				name=A.getName();
-				String out="name:"+name+"\n"+"ID:"+ID+"\n"+"infoID:"+infoID+"\n"+infoID+"preBlockIndex:"+preBlockIndex+"\n";
+				String out="name:"+name+"\n"+"ID:"+ID+"\n"+"infoID:"+infoID+infoID+"\n"+"preBlockIndex:"+preBlockIndex+"\n";
 				read.setText(out);
 			}
 		}
