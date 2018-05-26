@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -43,13 +44,14 @@ import org.jdom.input.SAXBuilder;
 
 import config.Configuration;
 import medic_information.*;
+import patientCard.PatientCard;
 import cryptogram.*;
 import block.*;
 import config.*;
 
 
 
-public class Interface_Main extends JFrame{
+public class Interface_Main extends JFrame implements ActionListener{
 	public static void main(String[] args) {
 		new Interface_Main("xinxianquan","2581751912@qq.com");
 	}
@@ -57,16 +59,17 @@ public class Interface_Main extends JFrame{
 	JFrame frame;
 	JPanel jp_N;
 	// 上边面板的控件
-	private JButton btn_suyuan, btn_upload,btn_zhanghu, close, small,submit1,submit2;
+	private JButton btn_suyuan, btn_upload,btn_zhanghu, close, small,submit1,submit2,fileworkscan_choose,fileworkscan_read;
 	private JPanel panel_filework;
 	private DrawPanel line=new DrawPanel();
-	private JTextField text1,text3,text2,text4,text5,text6,text7,text8,text9,text10,text11;
-	private JTextArea t;
+	public  JTextField text1,text3,text2,text4,text5,text6,text7,text8,text9,text10,text11;
+	private JTextArea t,read;
 	private String key,name,section,sign;
 	private long preBlockIndex,ID;
-	private int infoID,hospitalID;
+	private int infoID;
 	private JTable table;
 	private DefaultTableModel tableModel;
+	private JFileChooser jfc=new JFileChooser();
 
 	Configuration config = new Configuration();
 
@@ -89,7 +92,7 @@ public class Interface_Main extends JFrame{
 		 */
 		
 		ID=001;
-		hospitalID=002;
+		//hospitalID=002;
 		preBlockIndex=0;
 		sign="隔壁老王";
 		section="外科";
@@ -136,13 +139,13 @@ public class Interface_Main extends JFrame{
 		close.setRolloverIcon(new ImageIcon("image_interface/关闭2.png"));//鼠标悬停
 		close.setPressedIcon(new ImageIcon("image_interface/关闭1.png"));//鼠标按下
 		close.setBounds(942, 35, 40, 30);
-		close.addActionListener(new QQListener());
+		close.addActionListener(this);
 
 		small= new JButton(new ImageIcon("image_interface/最小化1.png"));
 		small.setRolloverIcon(new ImageIcon("image_interface/最小化2.png"));//鼠标悬停
 		small.setPressedIcon(new ImageIcon("image_interface/最小化1.png"));//鼠标按下
 		small.setBounds(895, 35, 40, 30);
-		small.addActionListener(new QQListener());
+		small.addActionListener(this);
 
 		jp_N.add(close);
 		jp_N.add(small);
@@ -192,7 +195,7 @@ public class Interface_Main extends JFrame{
 		btn_zhanghu.setVisible(true);
 		btn_zhanghu.setBounds(0,161, 180, 69);
 		frame.add(btn_zhanghu);
-		btn_zhanghu.addActionListener(new QQListener());
+		btn_zhanghu.addActionListener(this);
 
 
 
@@ -202,7 +205,7 @@ public class Interface_Main extends JFrame{
 		btn_upload.setVisible(true);
 		btn_upload.setBounds(0,253, 180, 69);
 		frame.add(btn_upload);
-		btn_upload.addActionListener(new QQListener());
+		btn_upload.addActionListener(this);
 
 
 		btn_suyuan = new JButton(new ImageIcon("image_interface/溯源1.png"));
@@ -210,7 +213,7 @@ public class Interface_Main extends JFrame{
 		btn_suyuan.setBounds(0,345,180,69);
 		btn_suyuan.setVisible(true);
 		frame.add(btn_suyuan);
-		btn_suyuan.addActionListener(new QQListener());
+		btn_suyuan.addActionListener(this);
 
 
 
@@ -237,8 +240,10 @@ public class Interface_Main extends JFrame{
 	}
 
 
-	class QQListener implements ActionListener{
-		@Override
+	
+		
+		
+		
 		public void actionPerformed(ActionEvent e) {
 			Object event=e.getSource();
 			if(event==close){
@@ -416,7 +421,7 @@ public class Interface_Main extends JFrame{
 				submit1.setVisible(true);
 				submit1.setBounds(600,460, 100, 50);
 				panel_filework.add(submit1);
-				submit1.addActionListener(new QQListener());
+				submit1.addActionListener(this);
 
 
 
@@ -486,7 +491,7 @@ public class Interface_Main extends JFrame{
 				submit2.setVisible(true);
 				submit2.setBounds(600,460, 100, 50);
 				panel_filework.add(submit2);
-				submit2.addActionListener(new QQListener());
+				submit2.addActionListener(this);
 
 
 
@@ -514,6 +519,8 @@ public class Interface_Main extends JFrame{
 			}
 			if(event==submit1){//病例上传
 				//首先获取当前拜占庭节点ip，之后选取一个ip发送信息
+				PatientCard A= PatientCard.getPatientCard(text1.getText());
+				while(true){
 				ArrayList<String> bztIP=null;
 				Socket socket;
 				try {
@@ -525,6 +532,7 @@ public class Interface_Main extends JFrame{
 
 					InputStream is = socket.getInputStream();
 					ObjectInputStream ois = new ObjectInputStream(is);
+					preBlockIndex=ois.readLong();
 					bztIP = (ArrayList<String>) ois.readObject();
 					oos.close();
 					os.close();
@@ -538,23 +546,37 @@ public class Interface_Main extends JFrame{
 
 				Xml_produce.BulidXml(text1.getText(),text2.getText(),text4.getText(),text3.getText(),text6.getText(),text5.getText(),
 						text7.getText(),text8.getText(),t.getText(),text10.getText(),text11.getText());
-				AES aes =new AES("key","4e5Wa71fYoT7MFE1");
+				
+				
+				
+				key=A.getKey(Integer.parseInt(text2.getText()));
+				AES aes =new AES(key,"4e5Wa71fYoT7MFE1");
 				String src = "xml\\";
 				byte[] encrypted = aes.encrypt(src+"test.xml");
 				aes.save(encrypted, src+"2.xml");
+				//Boolean[] lock=new Boolean[bztIP.size()];
+				int number=0;
 				try {
 					Document doc=Xml_produce.Xml2Doc("xml\\test.xml");
-					MedicalRecords upload=new MedicalRecords(preBlockIndex, LocalDate.now(), infoID, hospitalID, ID, section, sign, doc);
+					MedicalRecords upload=new MedicalRecords(preBlockIndex, LocalDate.now(), infoID, Integer.parseInt(text2.getText()), ID, section, sign, doc);
 					for(int i=0;i<bztIP.size();i++){
 						Socket socket2 = new Socket(bztIP.get(i), config.getPORT());
 
 						// 2.获取该Socket的输出流，用来向服务器发送信息
 						OutputStream os = socket2.getOutputStream();
 						ObjectOutputStream oos = new ObjectOutputStream(os);
-
+						
+						
 						oos.writeByte(1);
 						oos.writeObject(upload);
 						oos.flush();
+						
+						InputStream inputStream = socket2.getInputStream();
+						ObjectInputStream br=new ObjectInputStream(inputStream);
+						//lock[i]=br.readBoolean();
+						if(br.readBoolean()==true)
+							number++;
+								
 						socket2.close();
 					}
 
@@ -562,7 +584,20 @@ public class Interface_Main extends JFrame{
 					// TODO 自动生成的 catch 块
 					e1.printStackTrace();
 				}
-
+				if(number<(bztIP.size()/2))
+					break;
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e1) {
+					// TODO 自动生成的 catch 块
+					e1.printStackTrace();
+				}
+				}
+				
+				A.addPreBlockIndex(preBlockIndex);
+				A.addInfoID();
+				
+				
 			}
 			if(event==submit2){//与服务端连接进行溯源
 				Socket socket;
@@ -621,62 +656,73 @@ public class Interface_Main extends JFrame{
 				line.repaint();
 				panel_filework.repaint();
 
-				JLabel Label1 = new JLabel("姓名");
-				Label1.setBounds(50, 20,50, 40);
-				Label1.setForeground(Color.gray);
-				Label1.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				Label1.setVisible(true);
-				panel_filework.add(Label1);
+				
 
-				JTextField text1 = new JTextField();
-				text1.setBounds(100, 20, 100, 40);
-				text1.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				//text1.cornerRadius = 5;
-				panel_filework.add(text1);
-
-				JLabel Label2 = new JLabel("ID");
-				Label2.setBounds(50, 80,50, 40);
-				Label2.setForeground(Color.gray);
-				Label2.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				Label2.setVisible(true);
-				panel_filework.add(Label2);
-
-				JTextField text2 = new JTextField();
-				text2.setBounds(100, 80, 100, 40);
-				text2.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				panel_filework.add(text2);
-
-
-				JLabel Label3 = new JLabel("性别");
-				Label3.setBounds(50, 140,50, 40);
-				Label3.setForeground(Color.gray);
-				Label3.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				Label3.setVisible(true);
-				panel_filework.add(Label3);
-
-				text3 = new JTextField();
-				text3.setBounds(100, 140, 50, 40);
-				text3.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				panel_filework.add(text3);
-
-
-				JLabel Label4 = new JLabel("密钥");
-				Label4.setBounds(50, 200,50, 40);
-				Label4.setForeground(Color.gray);
-				Label4.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				Label4.setVisible(true);
-				panel_filework.add(Label4);
-
-				text4 = new JTextField();
-				text4.setBounds(100, 200, 50, 40);
-				text4.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				panel_filework.add(text4);
-
+				JLabel Label1 = new JLabel("选择要导入的用户资料:");
+		        Label1.setBounds(150, 20, 200, 40);
+		        Label1.setFont(new Font("微软雅黑",Font.PLAIN,18));
+		        panel_filework.add(Label1);
+		        
+		        text1 = new JTextField();
+		        text1.setBounds(150, 85, 400, 30);
+		        text1.setFont(new Font("宋体", 1, 12));
+		        panel_filework.add(text1);
+		        
+		        
+		        fileworkscan_choose=new JButton(new ImageIcon("image_interface/浏览1.png"));
+		        fileworkscan_choose.setRolloverIcon(new ImageIcon("image_interface/浏览2.png"));
+		        fileworkscan_choose.setBounds(430, 25, 100, 50);
+		        fileworkscan_choose.addActionListener(this);
+		        panel_filework.add(fileworkscan_choose);
+		        
+		        
+		        fileworkscan_read=new JButton(new ImageIcon("image_interface/读取1.png"));
+		        fileworkscan_read.setRolloverIcon(new ImageIcon("image_interface/读取2.png"));
+		        fileworkscan_read.setBounds(430, 150, 100, 50);
+		        fileworkscan_read.addActionListener(this);
+		        panel_filework.add(fileworkscan_read);
+		        
+		        t =new JTextArea();
+				t.setEditable(true);
+				t.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				JScrollPane scroll = new JScrollPane(t);
+				//把定义的JTextArea放到JScrollPane里面去
+				//分别设置水平和垂直滚动条自动出现
+				scroll.setHorizontalScrollBarPolicy(
+						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				scroll.setVerticalScrollBarPolicy(
+						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+				scroll.setBounds(150, 205, 400, 150);
+				panel_filework.add(scroll);
+		        
+		        
+		        panel_filework.add(jfc);
 
 
 			}
+			if (event == fileworkscan_choose) {
+				
+				jfc.setFileSelectionMode(0);//设定只能选择到文件
+		            int state=jfc.showOpenDialog(null);//此句是打开文件选择器界面的触发语句
+		            if(state==1){
+		                return;//撤销则返回
+		            }
+		            else{
+		                File f= jfc.getSelectedFile();//f为选择到的文件
+		                text1.setText(f.getAbsolutePath());
+				} 	
+	        }
+			if (event == fileworkscan_read) {
+				PatientCard A= PatientCard.getPatientCard(text1.getText());
+				ID=A.getPatientID();
+				infoID=A.getInfoID();
+				preBlockIndex=A.getPreBlockIndex();
+				name=A.getName();
+				String out="name:"+name+"\n"+"ID:"+ID+"\n"+"infoID:"+infoID+"\n"+infoID+"preBlockIndex:"+preBlockIndex+"\n";
+				read.setText(out);
+			}
 		}
-	}
+	
 
 	class MouseEventListener implements MouseInputListener{
 
@@ -748,7 +794,7 @@ public class Interface_Main extends JFrame{
 			g.drawLine(50,440,650,440);
 		}
 	}
-	public class Suyuan{
+	 public class Suyuan{
 		private int hospitalID;
 		private long ID, preBlockIndex;
 		private String Time1,Time2,Section;
@@ -781,7 +827,6 @@ public class Interface_Main extends JFrame{
 			return Time2;
 		}
 
-	}
+	}}
 
 
-}
