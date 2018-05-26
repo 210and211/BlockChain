@@ -1,6 +1,5 @@
 package consensus;
 
-import FileFragmentation_delete.FileFragmentation_delete_control;
 import block.Block;
 import block.BlockService;
 import block.MedicalRecords;
@@ -10,7 +9,6 @@ import p2pPeer.Peer;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.UnknownHostException;
 import java.util.*;
 
@@ -107,10 +105,10 @@ public class Main {
         }else {
             System.out.println("create block");
             /**
-            for(int i=0;i<records_result.length;i++) {
-                server.block_list.add(records_result[i]);
-            }
-            /**/
+             for(int i=0;i<records_result.length;i++) {
+             server.block_list.add(records_result[i]);
+             }
+             /**/
             System.out.println("server.block_list.size():\t"+server.block_list.size());
             System.out.println("bzt.result.size():\t"+bzt.result.size());
             Iterator it=server.block_list.iterator();
@@ -134,8 +132,8 @@ public class Main {
 
             List dataList=new ArrayList<>(result_block);
             //long index=config.getBLOCKCHAIN_HIGH();									/**上一个区块高度****/
-            block=bs.createBlock(dataList, bs.getblock(count));
-            System.out.println("count:  "+count);
+            block=bs.createBlock(dataList, bs.getblock(count-1));
+            System.out.println("count:  "+(count-1));
 
             block.sign(name);			//区块签名
             SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(1),config.getPORT(),block);
@@ -156,14 +154,14 @@ public class Main {
         server.set=new HashSet<>();
         server.bsi.clear();
         server.bsi=new ArrayList<>();
-        count++;
+        //count++;
     }
 
     public long getBlockChainHigh(){
         File blockChainDir = new File(config.getBLOCKCHAIN_SAVE_PATH());
         String[] fileSet = blockChainDir.list();
         if(fileSet.length==0)
-        	return 0;
+            return 0;
         long[] numSet = new long[fileSet.length];
 
         for(int i = 0; i < fileSet.length; i++){
@@ -192,7 +190,9 @@ public class Main {
 
         BlockService bs = new BlockService(peer);
 
-        Server server = new Server(peer); // 开启服务端
+        Boolean locked = false;
+
+        Server server = new Server(peer, count, locked); // 开启服务端
         server.start();
         String name = config.getSERVER_NAME();
 
@@ -209,7 +209,7 @@ public class Main {
 
 //        Thread delete = new Thread(new FileFragmentation_delete_control(peer,server.block_Fragmentationdelete_us));
 //        delete.start();
-/**/
+        /**/
         count = main.getBlockChainHigh();
         long t1=System.currentTimeMillis();
         while(true) {
@@ -231,12 +231,14 @@ public class Main {
                 e.printStackTrace();
             }
             t1=System.currentTimeMillis();
+            count++;
+            locked = true;
             if(ip_list.contains(my_ip)) {
                 new Main().consensus(bs,peer,server,name,my_ip,ip_list);
             }
-
+            locked = false;
         }
-/**/
+        /**/
 
     }
 
