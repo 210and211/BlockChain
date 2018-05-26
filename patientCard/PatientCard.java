@@ -2,7 +2,7 @@ package patientCard;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 
 public class PatientCard implements Serializable{
     /**
@@ -13,14 +13,15 @@ public class PatientCard implements Serializable{
      */
     private long patientID;                     //患者ID
     private String name;                        //患者姓名
-    private Map<Integer, String> key;           //患者在各个医院的密钥
+    private HashMap<Integer, String> key;           //患者在各个医院的密钥
     private int infoID;                         //患者下一次要生成的病历的序号
     private ArrayList<Long> preBlockIndex;      //患者最近一个病历所在区块号
 
-    private PatientCard(long patientID, String name, Map<Integer, String> key){
+    private PatientCard(long patientID, String name, int hospitalID, String key){
         this.patientID = patientID;
         this.name = name;
-        this.key = key;
+        this.key = new HashMap<Integer,String>();
+        this.key.put(hospitalID,key);
         infoID = 1;         //一张新病历卡病历从1开始计数
         preBlockIndex = null;
     }
@@ -95,12 +96,19 @@ public class PatientCard implements Serializable{
     public void addKey(int hospitalID, String key){
         this.key.put(hospitalID,key);
     }
-    
+
     public String getKey(int hospitalID){
         return key.get(hospitalID);
     }
-    
+
     public static void main(String[] args){
-        
+
+
+        PatientCard patientCard1 = new PatientCard(1,"我是1号",1,"the patient1's key of hospital1");
+        patientCard1.save("1.card");
+
+        PatientCard patientCard2 = new PatientCard(1,"我是2号",1,"the patient2's key of hospital1");
+        patientCard2.save("2.card");
     }
 }
+
