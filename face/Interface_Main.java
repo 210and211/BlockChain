@@ -16,6 +16,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
@@ -442,7 +443,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 				Label1.setVisible(true);
 				panel_filework.add(Label1);
 
-				JTextField text1 = new JTextField();
+				text1 = new JTextField();
 				text1.setBounds(100, 20, 100, 40);
 				text1.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				//text1.cornerRadius = 5;
@@ -455,7 +456,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 				Label2.setVisible(true);
 				panel_filework.add(Label2);
 
-				JTextField text2 = new JTextField();
+				text2 = new JTextField();
 				text2.setBounds(300, 20, 100, 40);
 				text2.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				panel_filework.add(text2);
@@ -467,7 +468,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 				Label3.setVisible(true);
 				panel_filework.add(Label3);
 
-				JTextField text3 = new JTextField();
+				text3 = new JTextField();
 				text3.setBounds(480, 20, 120, 40);
 				text3.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				text3.setText("2000-05-01");
@@ -481,7 +482,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 
 				panel_filework.add(Label4);
 
-				JTextField text4 = new JTextField();
+				text4 = new JTextField();
 				text4.setBounds(620, 20, 120, 40);
 				text4.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				text4.setText("2010-05-01");
@@ -603,7 +604,13 @@ public class Interface_Main extends JFrame implements ActionListener{
 			}
 			if(event==submit2){//与服务端连接进行溯源
 				Socket socket;
-				int hospitalid=Integer.parseInt(text2.getText());
+				int hospitalid;
+				System.out.println("'"+text2.getText()+"'");
+				if(text2.getText().equals(""))
+					hospitalid=0;
+				else 
+					hospitalid=Integer.parseInt(text2.getText());
+					
 				Suyuan S=new Suyuan(preBlockIndex, ID, hospitalid, text1.getText(), text3.getText(), text4.getText());
 				try {
 					socket = new Socket(config.getIP_LIST().get(0), config.getPORT());
@@ -796,39 +803,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 			g.drawLine(50,440,650,440);
 		}
 	}
-	 public class Suyuan{
-		private int hospitalID;
-		private long ID, preBlockIndex;
-		private String Time1,Time2,Section;
-		public Suyuan(long preBlockIndex, long ID,int hospitalID,String Section,String Time1,String Time2) {
-			// TODO 自动生成的构造函数存根
-			this.preBlockIndex = preBlockIndex;
-			this.ID=ID;
-			this.hospitalID=hospitalID;
-			this.Time1=Time1;
-			this.Time2=Time2;
-			this.Section=Section;
-		}
-
-		public long getPreBlockIndex(){
-			return preBlockIndex;
-		}
-		public long getID(){
-			return ID;
-		}
-		public int gethospitalID(){
-			return hospitalID;
-		}
-		public String getSection(){
-			return Section;
-		}
-		public String getTime1(){
-			return Time1;
-		}
-		public String getTime2(){
-			return Time2;
-		}
-
-	}}
+	 
+	 }
 
 
