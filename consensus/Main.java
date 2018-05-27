@@ -8,13 +8,15 @@ import ip_net.My_ip;
 import p2pPeer.Peer;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.UnknownHostException;
 import java.util.*;
 
 public class Main {
     Configuration config = new Configuration();
-    static long count = 0;
+    static Long[] count={(long) 0,(long) 25};
     void consensus(BlockService bs,Peer peer,Server server,String name,String my_ip,ArrayList<String> ip_list) {
 
 
@@ -132,8 +134,8 @@ public class Main {
 
             List dataList=new ArrayList<>(result_block);
             //long index=config.getBLOCKCHAIN_HIGH();									/**上一个区块高度****/
-            block=bs.createBlock(dataList, bs.getblock(count-1));
-            System.out.println("count:  "+(count-1));
+            block=bs.createBlock(dataList, bs.getblock(count[0]-1));
+            System.out.println("count:  "+(count[0]-1));
 
             block.sign(name);			//区块签名
             SendBlock_Thread sendblock=new SendBlock_Thread(ip_list.get(1),config.getPORT(),block);
@@ -210,7 +212,7 @@ public class Main {
 //        Thread delete = new Thread(new FileFragmentation_delete_control(peer,server.block_Fragmentationdelete_us));
 //        delete.start();
         /**/
-        count = main.getBlockChainHigh();
+        count[0] = main.getBlockChainHigh();
         long t1=System.currentTimeMillis();
         while(true) {
             ArrayList<String> list = new ArrayList<String>();
@@ -220,7 +222,7 @@ public class Main {
             System.out.println("count"+count);
             ArrayList<String> ip_list=new POS().get_node(list,
                     config.getBYZANTINE_PEER_COUNT(),
-                    bs.getblock(count-1).gethash());
+                    bs.getblock(count[0]-1).gethash());
             for (int o=0;o<ip_list.size();o++){
                 System.out.println(ip_list.get(o));
             }
@@ -231,7 +233,7 @@ public class Main {
                 e.printStackTrace();
             }
             t1=System.currentTimeMillis();
-            count++;
+            count[0]++;
             locked = true;
             if(ip_list.contains(my_ip)) {
                 new Main().consensus(bs,peer,server,name,my_ip,ip_list);

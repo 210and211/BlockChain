@@ -14,7 +14,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-
+import face.*;
 import block.Block;
 import block.BlockService;
 import block.MedicalRecords;
@@ -37,9 +37,9 @@ public class Server extends Thread {
     private BlockService blockService;
     private ArrayList<String> ipList = config.getIP_LIST();
     Boolean locked = false;
-    Long count;
+    Long[] count;
 
-    public Server(Peer peer, Long count, Boolean locked) {
+    public Server(Peer peer, Long[] count, Boolean locked) {
         this.peer = peer;
         this.count = count;
         this.locked = locked;
@@ -188,13 +188,13 @@ public class Server extends Thread {
                     os = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(os);
                     POS pos = new POS();
-                    oos.writeLong(count);
-                    oos.writeObject(pos.get_node(ipList, config.getBYZANTINE_PEER_COUNT(), count));
+                    oos.writeLong(count[0]);
+                    oos.writeObject(pos.get_node(ipList, config.getBYZANTINE_PEER_COUNT(), count[0]));
                     oos.flush();
                     oos.close();
                     os.close();
                 } else if (mark1 == 6) {   //返回溯源结果
-                    Interface_Main.Suyuan s = (Interface_Main.Suyuan) ois.readObject();
+                    Suyuan s = (Suyuan) ois.readObject();
                     boolean hospital = (s.gethospitalID() != 0);
                     boolean time = (s.getTime1() != null && s.getTime2() != null);
                     boolean section = (s.getSection() != null);
