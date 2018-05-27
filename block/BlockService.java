@@ -64,6 +64,20 @@ public class BlockService implements Serializable {
         }
     }
 
+    //获取区块高度
+    public long getBlockChainHigh(){
+        File blockChainDir = rootPath;
+        String[] fileSet = blockChainDir.list();
+        long[] numSet = new long[fileSet.length];
+
+        for(int i = 0; i < fileSet.length; i++){
+            numSet[i] = Long.parseLong(fileSet[i].split("\\.")[0]);
+        }
+        Arrays.sort(numSet);
+
+        return numSet[numSet.length - 1];
+    }
+
 
     //将区块写入文件
     public void save(Block block) {
@@ -83,6 +97,7 @@ public class BlockService implements Serializable {
 
     //生成一个新区块
     public Block createBlock(List<MedicalRecords> dataList, Block previousBlock) {
+
         String fatherhash = previousBlock.gethash();
         Block block;
         MedicalRecords[] data = new MedicalRecords[dataList.size()];
@@ -90,6 +105,25 @@ public class BlockService implements Serializable {
         if(data.length == 0){
             block = new Block(previousBlock.index + 1, fatherhash, "", data.length, data);
         }else {
+            //对数据进行排序，按patientID
+
+            Comparator comparator = new Comparator<MedicalRecords>() {
+                @Override
+                public int compare(MedicalRecords m1, MedicalRecords m2) {
+                    if(m1.getPatientID() > m2.getPatientID()){
+                        return 1;
+                    }else {
+                        return 0;
+                    }
+                }
+            };
+
+            Collections.sort(dataList,comparator);
+
+            for(int i = 0; i < dataList.size(); i++){
+                System.out.println(dataList.get(i).getPatientID());
+            }
+            //
             MerkleTrees merkleTrees = new MerkleTrees(data);
             Node root = merkleTrees.getRoot();
             block = new Block(previousBlock.index + 1, fatherhash, root.hash, data.length, data);
