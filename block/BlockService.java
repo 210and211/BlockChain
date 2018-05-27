@@ -83,14 +83,18 @@ public class BlockService implements Serializable {
 
     //生成一个新区块
     public Block createBlock(List<MedicalRecords> dataList, Block previousBlock) {
+        String fatherhash = previousBlock.gethash();
+        Block block;
         MedicalRecords[] data = new MedicalRecords[dataList.size()];
         dataList.toArray(data);
+        if(data.length == 0){
+            block = new Block(previousBlock.index + 1, fatherhash, "", data.length, data);
+        }else {
+            MerkleTrees merkleTrees = new MerkleTrees(data);
+            Node root = merkleTrees.getRoot();
+            block = new Block(previousBlock.index + 1, fatherhash, root.hash, data.length, data);
+        }
 
-        MerkleTrees merkleTrees = new MerkleTrees(data);
-
-        Node root = merkleTrees.getRoot();
-        String fatherhash = previousBlock.gethash();
-        Block block = new Block(previousBlock.index + 1, fatherhash, root.hash, data.length, data);
         return block;
     }
 
