@@ -12,6 +12,7 @@ import java.util.*;
 
 public class BlockService implements Serializable {
 
+    private Configuration config = new Configuration(); ;
     private IFileManager fileManager;
     private File rootPath;
 
@@ -65,12 +66,12 @@ public class BlockService implements Serializable {
     }
 
     //获取区块高度
-    public long getBlockChainHigh(){
+    public long getBlockChainHigh() {
         File blockChainDir = rootPath;
         String[] fileSet = blockChainDir.list();
         long[] numSet = new long[fileSet.length];
 
-        for(int i = 0; i < fileSet.length; i++){
+        for (int i = 0; i < fileSet.length; i++) {
             numSet[i] = Long.parseLong(fileSet[i].split("\\.")[0]);
         }
         Arrays.sort(numSet);
@@ -102,25 +103,25 @@ public class BlockService implements Serializable {
         Block block;
         MedicalRecords[] data = new MedicalRecords[dataList.size()];
         dataList.toArray(data);
-        if(data.length == 0){
+        if (data.length == 0) {
             block = new Block(previousBlock.index + 1, fatherhash, "", data.length, data);
-        }else {
+        } else {
             //对数据进行排序，按patientID
 
             Comparator comparator = new Comparator<MedicalRecords>() {
                 @Override
                 public int compare(MedicalRecords m1, MedicalRecords m2) {
-                    if(m1.getPatientID() > m2.getPatientID()){
-                        return 1;
-                    }else {
+                    if (m1.getPatientID() > m2.getPatientID()) {
+                        return -1;
+                    } else {
                         return 0;
                     }
                 }
             };
 
-            Collections.sort(dataList,comparator);
+            Collections.sort(dataList, comparator);
 
-            for(int i = 0; i < dataList.size(); i++){
+            for (int i = 0; i < dataList.size(); i++) {
                 System.out.println(dataList.get(i).getPatientID());
             }
             //
@@ -179,8 +180,53 @@ public class BlockService implements Serializable {
      * ④从待查询集合中删除该块号
      * ⑤回到①，直到待查询集合为空
      */
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID) {
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, ArrayList<MedicalRecords> opData) {
 
+        HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
+        HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
+        Iterator<Long> indexArrIt;
+        HashSet<Long> foundIndex = new HashSet<Long>();    //保存已找过的区块号
+
+        long blockIndex;
+        MedicalRecords[] tmpData;
+
+        indexArr.add(index);
+        indexArrIt = indexArr.iterator();
+        while (indexArr.size() != 0) {
+            blockIndex = indexArrIt.next();
+
+            if (foundIndex.add(blockIndex)) {    //若该区块未被找过
+
+                tmpData = getblock(blockIndex).data;       //提取信息
+
+                int patientIndex = binarySearch(tmpData, patientID);             //二分查找，找出第一个符合的信息索引
+
+                if (patientIndex != -1) {
+                    for (int i = patientIndex; i < tmpData.length; i++) {       //遍历信息
+                        if (tmpData[i].getPatientID() == patientID && tmpData[i].getCreateOrObtion() == true) { //匹配信息
+                            data.add(tmpData[i]);                               //成功匹配的放入信息集中
+                            /**产生查阅病历的信息**/
+                            opData.add(new MedicalRecords(index,
+                                    LocalDate.now(),
+                                    config.getHOSPITAL_ID(),
+                                    tmpData[i].getInfoID(),
+                                    tmpData[i].getHospitalID(),
+                                    tmpData[i].getPatientID(),
+                                    tmpData[i].getSection()));
+                            if (tmpData[i].getPreBlockIndex() != 0) {           //前一区块高度为0表示无前一区块
+                                indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
+                            }
+                        }
+                    }
+                }
+            }
+            indexArr.remove(blockIndex);
+            indexArrIt = indexArr.iterator();
+        }
+        return data.toArray(new MedicalRecords[]{});
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID, ArrayList<MedicalRecords> opData) {
         HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
         HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
         Iterator<Long> indexArrIt;
@@ -200,8 +246,18 @@ public class BlockService implements Serializable {
 
                 if (patientIndex != -1) {
                     for (int i = patientIndex; i < tmpData.length; i++) {       //遍历信息
-                        if (tmpData[i].getPatientID() == patientID && tmpData[i].getCreateOrObtion() == true) { //匹配信息
+                        if (tmpData[i].getPatientID() == patientID &&
+                                tmpData[i].getHospitalID() == hospitalID &&
+                                tmpData[i].getCreateOrObtion() == true) { //匹配信息
                             data.add(tmpData[i]);                               //成功匹配的放入信息集中
+                            /**产生查阅病历的信息**/
+                            opData.add(new MedicalRecords(index,
+                                    LocalDate.now(),
+                                    config.getHOSPITAL_ID(),
+                                    tmpData[i].getInfoID(),
+                                    tmpData[i].getHospitalID(),
+                                    tmpData[i].getPatientID(),
+                                    tmpData[i].getSection()));
                             if (tmpData[i].getPreBlockIndex() != 0) {           //前一区块高度为0表示无前一区块
                                 indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
                             }
@@ -215,31 +271,110 @@ public class BlockService implements Serializable {
         return data.toArray(new MedicalRecords[]{});
     }
 
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID) {
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String section, ArrayList<MedicalRecords> opData) {
+        HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
+        HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
+        Iterator<Long> indexArrIt;
+        HashSet<Long> foundIndex = new HashSet<Long>();    //保存已找过的区块号
+
+        long blockIndex;
+        MedicalRecords[] tmpData;
+
+        indexArr.add(index);
+        indexArrIt = indexArr.iterator();
+        while (indexArr.size() != 0) {
+            blockIndex = indexArrIt.next();
+
+            if (foundIndex.add(blockIndex)) {    //若该区块未被找过
+                tmpData = getblock(blockIndex).data;       //提取信息
+                int patientIndex = binarySearch(tmpData, patientID);             //二分查找，找出第一个符合的信息索引
+
+                if (patientIndex != -1) {
+                    for (int i = patientIndex; i < tmpData.length; i++) {       //遍历信息
+                        if (tmpData[i].getPatientID() == patientID &&
+                                tmpData[i].getSection() == section &&
+                                tmpData[i].getCreateOrObtion() == true) { //匹配信息
+                            data.add(tmpData[i]);                               //成功匹配的放入信息集中
+                            /**产生查阅病历的信息**/
+                            opData.add(new MedicalRecords(index,
+                                    LocalDate.now(),
+                                    config.getHOSPITAL_ID(),
+                                    tmpData[i].getInfoID(),
+                                    tmpData[i].getHospitalID(),
+                                    tmpData[i].getPatientID(),
+                                    tmpData[i].getSection()));
+                            if (tmpData[i].getPreBlockIndex() != 0) {           //前一区块高度为0表示无前一区块
+                                indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
+                            }
+                        }
+                    }
+                }
+            }
+            indexArr.remove(blockIndex);
+            indexArrIt = indexArr.iterator();
+        }
+        return data.toArray(new MedicalRecords[]{});
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, LocalDate startTime, LocalDate endTime, ArrayList<MedicalRecords> opData) {
+        HashSet<MedicalRecords> data = new HashSet<MedicalRecords>();   //保存找到的记录
+        HashSet<Long> indexArr = new HashSet<Long>();       //保存当前需要查找的区块号
+        Iterator<Long> indexArrIt;
+        HashSet<Long> foundIndex = new HashSet<Long>();    //保存已找过的区块号
+
+        long blockIndex;
+        MedicalRecords[] tmpData;
+
+        indexArr.add(index);
+        indexArrIt = indexArr.iterator();
+        while (indexArr.size() != 0) {
+            blockIndex = indexArrIt.next();
+
+            if (foundIndex.add(blockIndex)) {    //若该区块未被找过
+                tmpData = getblock(blockIndex).data;       //提取信息
+                int patientIndex = binarySearch(tmpData, patientID);             //二分查找，找出第一个符合的信息索引
+
+                if (patientIndex != -1) {
+                    for (int i = patientIndex; i < tmpData.length; i++) {       //遍历信息
+                        if (tmpData[i].getPatientID() == patientID &&
+                                startTime.isBefore(tmpData[i].getOperateTime()) &&
+                                endTime.isAfter(tmpData[i].getOperateTime()) &&
+                                tmpData[i].getCreateOrObtion() == true) { //匹配信息
+                            data.add(tmpData[i]);                               //成功匹配的放入信息集中
+                            /**产生查阅病历的信息**/
+                            opData.add(new MedicalRecords(index,
+                                    LocalDate.now(),
+                                    config.getHOSPITAL_ID(),
+                                    tmpData[i].getInfoID(),
+                                    tmpData[i].getHospitalID(),
+                                    tmpData[i].getPatientID(),
+                                    tmpData[i].getSection()));
+                            if (tmpData[i].getPreBlockIndex() != 0) {           //前一区块高度为0表示无前一区块
+                                indexArr.add(tmpData[i].getPreBlockIndex());    //将前一区块放入待查找区块
+                            }
+                        }
+                    }
+                }
+            }
+            indexArr.remove(blockIndex);
+            indexArrIt = indexArr.iterator();
+        }
+        return data.toArray(new MedicalRecords[]{});
+    }
+
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID, String section, ArrayList<MedicalRecords> opData) {
         return null;
     }
 
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String section) {
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID, LocalDate startTime, LocalDate endTime, ArrayList<MedicalRecords> opData) {
         return null;
     }
 
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, LocalDate startTime, LocalDate endTime) {
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String section, LocalDate startTime, LocalDate endTime, ArrayList<MedicalRecords> opData) {
         return null;
     }
 
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID, String section) {
-        return null;
-    }
-
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, int hospitalID, LocalDate startTime, LocalDate endTime) {
-        return null;
-    }
-
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, String section, LocalDate startTime, LocalDate endTime) {
-        return null;
-    }
-
-    public MedicalRecords[] creOpTraceToSource(long index, long patientID, long hospitalID, String sction, LocalDate startTime, LocalDate endTime) {
+    public MedicalRecords[] creOpTraceToSource(long index, long patientID, long hospitalID, String sction, LocalDate startTime, LocalDate endTime, ArrayList<MedicalRecords> opData) {
         return null;
     }
 
@@ -253,14 +388,14 @@ public class BlockService implements Serializable {
             return -1;
         }
 
-        while (low < high) {
+        while (low <= high) {
             middle = (low + high) / 2;
             if (data[middle].getPatientID() > patientID) {
                 high = middle - 1;
             } else if (data[middle].getPatientID() < patientID) {
                 low = middle + 1;
             } else {
-                while (data[middle - 1].getPatientID() == patientID) {
+                while (middle > 0 && data[middle - 1].getPatientID() == patientID) {
                     middle--;
                 }
                 return middle;
@@ -269,41 +404,22 @@ public class BlockService implements Serializable {
         return -1;
     }
 
-    public MedicalRecords[] getCreMedicalRecords(int opHospitalID, long index, long patientID) {
-        MedicalRecords[] orginData = creOpTraceToSource(index, patientID);
-        for (int i = 0; i < orginData.length; i++) {
-            MedicalRecords opData = new MedicalRecords(
-                    index,
-                    LocalDate.now(),
-                    opHospitalID,
-                    orginData[i].getInfoID(),
-                    orginData[i].getHospitalID(),
-                    orginData[i].getPatientID(),
-                    orginData[i].getSection()
-            );
-        }
-        /**
-         * 向打包节点发送对病例的调取操作
-         */
-        return orginData;
-    }
-
-    public MedicalRecords[] ObtOpTraceToSource(long hospitalID, LocalDate latestTime, LocalDate oldstTime){
+    public MedicalRecords[] ObtOpTraceToSource(long hospitalID, LocalDate latestTime, LocalDate oldstTime) {
         Configuration config = new Configuration();
         ArrayList<MedicalRecords> data = new ArrayList<MedicalRecords>();
         MedicalRecords[] tmpData;
-        for(long i = config.getBLOCKCHAIN_HIGH() - 1; i >= 0; i--){
+        for (long i = config.getBLOCKCHAIN_HIGH() - 1; i >= 0; i--) {
             tmpData = getblock(i).data;
             boolean flag = false;
-            for(int j = 0; j < tmpData.length; j++){
-                if(tmpData[j].getOpHospitalID() == hospitalID){
+            for (int j = 0; j < tmpData.length; j++) {
+                if (tmpData[j].getOpHospitalID() == hospitalID) {
                     flag = true;
-                    if(tmpData[j].getOperateTime().isBefore(latestTime) && oldstTime.isBefore(tmpData[j].getOperateTime())){
+                    if (tmpData[j].getOperateTime().isBefore(latestTime) && oldstTime.isBefore(tmpData[j].getOperateTime())) {
                         data.add(tmpData[j]);
                     }
                 }
             }
-            if(flag && data.size() != 0){
+            if (flag && data.size() != 0) {
                 break;
             }
         }
