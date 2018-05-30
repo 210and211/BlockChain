@@ -4,6 +4,7 @@ package medic_information;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -76,7 +77,7 @@ public class Xml_produce {
 		root.addContent(elementclass);//把子节点添加到根节点中。
 		XMLOutputter XMLOut = new XMLOutputter(FormatXML());  //生成xml文件
 		try {
-			XMLOut.output(document, new FileOutputStream("xml\\test.xml"));
+			XMLOut.output(document, new FileOutputStream("test.xml"));
 		} catch (FileNotFoundException e) {
 			System.out.println("生成xml文件失败！");
 			e.printStackTrace();
@@ -86,9 +87,14 @@ public class Xml_produce {
 		}
 	}
 	public static void main(String[] args) {
+		LocalDate beginDateTime = LocalDate.parse("2017-05-01");
+		  System.out.print(beginDateTime);
+		  LocalDate localDate1 = LocalDate.parse("2017-09-12");
+	        System.out.println(localDate1);
+
 		//BulidXml();
 		try {
-			Document doc=Xml2Doc("xml\\test.xml");
+			//Document doc=Xml2Doc("xml\\test.xml");
 		} catch (Exception e) {
 			// TODO 自动生成的 catch 块
 			System.out.println("生成document文件失败！");
@@ -103,8 +109,18 @@ public class Xml_produce {
 	        return format;  
 	    }
 	  public static Document Xml2Doc(String xmlFilePath) throws Exception {   
-	        File file = new File(xmlFilePath);   
+		  
+		  File file = new File(xmlFilePath);   
 	        return (new SAXBuilder()).build(file);   
 	    } 
-
+	  public static void doc2XML(Document doc, String filePath) throws Exception{   
+	        Format format = Format.getCompactFormat();    
+	        format.setEncoding("UTF-8"); //设置XML文件的字符为UTF-8   
+	        format.setIndent("     ");//设置缩进    
+	       
+	        XMLOutputter outputter = new XMLOutputter(format);//定义输出 ,在元素后换行，每一层元素缩排四格    
+	        FileWriter writer = new FileWriter(filePath);//输出流   
+	        outputter.output(doc, writer);   
+	        writer.close();   
+	    } 
 }
