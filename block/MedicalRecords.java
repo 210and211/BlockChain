@@ -22,10 +22,10 @@ public class MedicalRecords implements Serializable {
     private long patientID;             //患者ID
     private String section;             //就诊科室
     private String sign = null;         //主治医生签名(若为获取病历信息则此条为null)
-    private Document info = null;       //病历内容(若为获取病历信息则此条为null)
+    private byte[] info = null;       //病历内容(若为获取病历信息则此条为null)
 
     //构建一条创建病例的记录（如无前一条病例所在区块，则preBlockIndex=0）
-    public MedicalRecords(long preBlockIndex, LocalDate operateTime, int infoID, int hospitalID, long patientID, String section, String sign, Document info){
+    public MedicalRecords(long preBlockIndex, LocalDate operateTime, int infoID, int hospitalID, long patientID, String section, String sign, byte[] info){
         this.preBlockIndex = preBlockIndex;
         this.createOrObtain = true;
         this.operateTime = operateTime;
@@ -81,7 +81,7 @@ public class MedicalRecords implements Serializable {
     public String getSign(){
         return sign;
     }
-    public Document getInfo() {
+    public byte[] getInfo() {
         return info;
     }
 

@@ -15,14 +15,20 @@ public class BlockService implements Serializable {
     private Configuration config = new Configuration(); ;
     private IFileManager fileManager;
     private File rootPath;
+    private Long[] count;
 
-    public BlockService(Peer peer) {
+    public BlockService(Peer peer,Long[] count) {
         fileManager = peer.getNode().getFileManager();
         rootPath = peer.getFileAgent().getRoot();
+        this.count=count;
     }
 
-    public BlockService() {
-
+    public BlockService(Peer peer) {
+    	 fileManager = peer.getNode().getFileManager();
+         rootPath = peer.getFileAgent().getRoot();
+    }
+    public BlockService(){
+    	
     }
 
     //获取区块链的第一个区块
@@ -408,7 +414,7 @@ public class BlockService implements Serializable {
         Configuration config = new Configuration();
         ArrayList<MedicalRecords> data = new ArrayList<MedicalRecords>();
         MedicalRecords[] tmpData;
-        for (long i = config.getBLOCKCHAIN_HIGH() - 1; i >= 0; i--) {
+        for (long i = count[0] - 1; i >= 0; i--) {
             tmpData = getblock(i).data;
             boolean flag = false;
             for (int j = 0; j < tmpData.length; j++) {
