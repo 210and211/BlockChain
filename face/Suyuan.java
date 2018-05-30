@@ -15,6 +15,11 @@ public class Suyuan implements Serializable{
 		this.Time2=Time2;
 		this.Section=Section;
 	}
+	public Suyuan(int hospitalID,String Time1,String Time2){
+		this.hospitalID=hospitalID;
+		this.Time1=Time1;
+		this.Time2=Time2;
+	}
 
 	public long getPreBlockIndex(){
 		return preBlockIndex;
