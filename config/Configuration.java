@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Properties;
 
@@ -25,12 +24,13 @@ public class Configuration {
 	private String PUBLICKEY_PATH;
 	private String PRIVATEKEY_PATH;
 	private int BYZANTINE_PEER_COUNT;
+	private int HOSPITAL_ID;
 	private int PORT;
 	private int LEAST_EXIT;
 	private int EXIT_ALL_TIME;
 	private int EXIT_ONLY_TIME;
 	private String IP_LIST;
-	private long CREATE_BLOCK_TIME;
+	private int CREATE_BLOCK_TIME;
 	private long BLOCKCHAIN_HIGH;//区块总高度
 	//private ArrayList<LocalDate> BLOCK_SCAESS_TIME =new ArrayList<LocalDate>();//存在区块的最新访问时间
 	private int BLOCKCHAIN_RANGE;//定义一个检查删除范围，比如现在区块高度为1000，我们只检查1000-500的区块删除，因为0-500的大概率已经删除到稳定节点个数
@@ -59,7 +59,8 @@ public class Configuration {
 			IP_LIST = properties.getProperty("IP_LIST");
 			BLOCKCHAIN_HIGH = Long.parseLong(properties.getProperty("BLOCKCHAIN_HIGH"));
 			BLOCKCHAIN_RANGE = Integer.parseInt(properties.getProperty("BLOCKCHAIN_RANGE"));
-			CREATE_BLOCK_TIME = Long.parseLong(properties.getProperty("CREATE_BLOCK_TIME"));
+			CREATE_BLOCK_TIME = Integer.parseInt(properties.getProperty("CREATE_BLOCK_TIME"));
+			HOSPITAL_ID = Integer.parseInt(properties.getProperty("HOSPITAL_ID"));
 		} catch (FileNotFoundException e) {
 			System.out.println("ERROR:properties.conf 配置文件未找到。");
 			e.printStackTrace();
@@ -129,8 +130,12 @@ public class Configuration {
 		return LEAST_EXIT;
 	}
 
-	public long getCREATE_BLOCK_TIME() {
+	public int getCREATE_BLOCK_TIME() {
 		return CREATE_BLOCK_TIME;
+	}
+
+	public int getHOSPITAL_ID() {
+		return HOSPITAL_ID;
 	}
 
 	public ArrayList<String> getIP_LIST() {
@@ -154,7 +159,6 @@ public class Configuration {
 		return null;
 	}
 
-	
 
 	//不要忘记线程互斥
 
