@@ -9,6 +9,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Vector;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -36,6 +38,7 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.MouseInputListener;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
@@ -60,19 +63,20 @@ public class Interface_Main extends JFrame implements ActionListener{
 	JFrame frame;
 	JPanel jp_N;
 	// 上边面板的控件
-	private JButton btn_suyuan, btn_upload,btn_zhanghu, close, small,submit1,submit2,fileworkscan_choose,fileworkscan_read;
+	private JButton btn_suyuan, btn_upload,btn_zhanghu,btn_Application, close, small,submit1,submit2,fileworkscan_choose,fileworkscan_read;
 	private JPanel panel_filework;
 	private DrawPanel line=new DrawPanel();
 	public  JTextField text1,text3,text2,text4,text5,text6,text7,text8,text9,text10,text11;
 	private JTextArea t,read;
 	private String key,name,section,sign;
-	private long preBlockIndex,ID;
+	private long preBlockIndex,ID,nowBlockIndex;
 	private int infoID;
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JFileChooser jfc=new JFileChooser();
+	private String path;
 	PatientCard A;
-
+	private MedicalRecords[] Med;
 	Configuration config = new Configuration();
 
 	public Interface_Main(String userid, String email){
@@ -198,6 +202,15 @@ public class Interface_Main extends JFrame implements ActionListener{
 		btn_zhanghu.setBounds(0,161, 180, 69);
 		frame.add(btn_zhanghu);
 		btn_zhanghu.addActionListener(this);
+		
+		
+		
+		btn_Application=new JButton(new ImageIcon("image_interface/用户注册1.png"));
+		btn_Application.setRolloverIcon(new ImageIcon("image_interface/用户注册2.png"));
+		btn_Application.setVisible(true);
+		btn_Application.setBounds(80,150, 226, 71);
+		panel_filework.add(btn_Application);
+		btn_Application.addActionListener(this);
 
 
 
@@ -499,12 +512,19 @@ public class Interface_Main extends JFrame implements ActionListener{
 
 				String[] columnTitle = {"医院" , "科室"  , "时间" };
 				String[][] tabledate={
-						//new Object[]{"1","1","uiui ","qwe"},
+						
 						//new Object[]{"1","1","uiui ","qwe"}
 				};
-				tableModel = new DefaultTableModel(tabledate,columnTitle);
-				table=new JTable(tableModel);
+				tableModel=new DefaultTableModel(tabledate, columnTitle);
+				table=new JTable(tableModel){
+		             public boolean isCellEditable(int row, int column)
+	                  {
+	                             return false;}//表格不允许被编辑
+	                  
+					};
 				table.setRowHeight(30);//行高
+				
+				
 
 				//第3列列宽
 				TableColumnModel cm = table.getColumnModel();
@@ -517,95 +537,125 @@ public class Interface_Main extends JFrame implements ActionListener{
 				table.getTableHeader().setFont(new Font("黑体", Font.PLAIN,18));
 				jsp.setBounds(50, 100, 600, 300);
 				panel_filework.add(jsp);
+				table.addMouseListener(new MouseAdapter(){ 
+					public void mouseClicked(MouseEvent e) {
+						if(e.getClickCount() == 2){
+
+						int row =((JTable)e.getSource()).rowAtPoint(e.getPoint()); //获得行位置 
+                        int col=((JTable)e.getSource()).columnAtPoint(e.getPoint()); //获得列位置 
+                        String cellVal=(String)(tableModel.getValueAt(row,col)); //获得点击单元格数据 txtboxRow.setText((row+1)+""); txtboxCol.setText((col+1)+""); 
+                        try {
+							Xml_produce.doc2XML(Med[row].getInfo(), "read1.xml");
+							key=A.getKey(Med[row].getHospitalID());
+							AES aes =new AES(key,"4e5Wa71fYoT7MFE1");
+							byte[] decrypted = aes.decrypt("read1.xml");
+							aes.save(decrypted, "read2.xml");
+							Process process = Runtime.getRuntime().exec(
+								    "cmd.exe  /c notepad "+System.getProperty("user.dir")+"\read2.xml");
+
+						} catch (Exception e1) {
+							// TODO 自动生成的 catch 块
+							e1.printStackTrace();
+						}
+						} 
+						else return; 
+					} 
+				});
 
 			}
 			if(event==submit1){//病例上传
 				//首先获取当前拜占庭节点ip，之后选取一个ip发送信息
 				//PatientCard A= PatientCard.getPatientCard(text1.getText());
-				while(true){
-				ArrayList<String> bztIP=null;
-				Socket socket;
-				try {
-					socket = new Socket(config.getIP_LIST().get(0),config.getPORT());
-					OutputStream os = socket.getOutputStream();
-					ObjectOutputStream oos = new ObjectOutputStream(os);
-					oos.writeByte(5);
-					oos.flush();
-
-					InputStream is = socket.getInputStream();
-					ObjectInputStream ois = new ObjectInputStream(is);
-					preBlockIndex=ois.readLong();
-					bztIP = (ArrayList<String>) ois.readObject();
-					oos.close();
-					os.close();
-					socket.close();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (ClassNotFoundException e1) {
-					System.out.println("ArrayList<String>类未能正确解析.");
-					e1.printStackTrace();
-				}
-
-				Xml_produce.BulidXml(text1.getText(),text2.getText(),text4.getText(),text3.getText(),text6.getText(),text5.getText(),
-						text7.getText(),text8.getText(),t.getText(),text10.getText(),text11.getText());
 				
-				
-				A.addKey(10010, "10010");//
-				key=A.getKey(Integer.parseInt(text6.getText()));
-				AES aes =new AES(key,"4e5Wa71fYoT7MFE1");
-				String src = "xml\\";
-				byte[] encrypted = aes.encrypt(src+"test.xml");
-				aes.save(encrypted, src+"2.xml");
-				//Boolean[] lock=new Boolean[bztIP.size()];
-				int number=0;
-				try {
-					Document doc=Xml_produce.Xml2Doc("xml\\test.xml");
-					MedicalRecords upload=new MedicalRecords(preBlockIndex,  LocalDate.parse(text5.getText()), infoID, Integer.parseInt(text6.getText()), ID,text7.getText(), text11.getText(), doc);
-					for(int i=0;i<bztIP.size();i++){
-						Socket socket2 = new Socket(bztIP.get(i), config.getPORT());
+					while(true){
+						ArrayList<String> bztIP=null;
+						Socket socket;
+						try {
+							socket = new Socket(config.getIP_LIST().get(0),config.getPORT());
+							OutputStream os = socket.getOutputStream();
+							ObjectOutputStream oos = new ObjectOutputStream(os);
+							oos.writeByte(5);
+							oos.flush();
 
-						// 2.获取该Socket的输出流，用来向服务器发送信息
-						OutputStream os = socket2.getOutputStream();
-						ObjectOutputStream oos = new ObjectOutputStream(os);
+							InputStream is = socket.getInputStream();
+							ObjectInputStream ois = new ObjectInputStream(is);
+							nowBlockIndex=ois.readLong()+1;
+							
+							bztIP = (ArrayList<String>) ois.readObject();
+							oos.close();
+							os.close();
+							socket.close();
+						} catch (IOException e1) {
+							e1.printStackTrace();
+						} catch (ClassNotFoundException e1) {
+							System.out.println("ArrayList<String>类未能正确解析.");
+							e1.printStackTrace();
+						}
+
+						Xml_produce.BulidXml(text1.getText(),text2.getText(),text4.getText(),text3.getText(),text6.getText(),text5.getText(),
+								text7.getText(),text8.getText(),t.getText(),text10.getText(),text11.getText());
 						
 						
-						oos.writeByte(1);
-						oos.writeObject(upload);
-						oos.flush();
-						
-						InputStream inputStream = socket2.getInputStream();
-						ObjectInputStream br=new ObjectInputStream(inputStream);
-						//lock[i]=br.readBoolean();
-						if(br.readBoolean()==true)
-							number++;
-						oos.close();
-						br.close();
-						socket2.close();
-					}
+						//A.addKey(10010, "10010");//
+						key=A.getKey(Integer.parseInt(text6.getText()));
+						AES aes =new AES(key,"4e5Wa71fYoT7MFE1");
+						String src = "";
+						byte[] encrypted = aes.encrypt(src+"test.xml");
+						aes.save(encrypted, src+"2.xml");
+						//Boolean[] lock=new Boolean[bztIP.size()];
+						int number=0;
+						try {
+							Document doc=Xml_produce.Xml2Doc("2.xml");
+							MedicalRecords upload=new MedicalRecords(preBlockIndex,  LocalDate.parse(text5.getText()), infoID, Integer.parseInt(text6.getText()), ID,text7.getText(), text11.getText(), doc);
+							for(int i=0;i<bztIP.size();i++){
+								Socket socket2 = new Socket(bztIP.get(i), config.getPORT());
 
-				} catch (Exception e1) {
-					// TODO 自动生成的 catch 块
-					e1.printStackTrace();
-				}
-				if(number<(bztIP.size()/2))
-					break;
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e1) {
-					// TODO 自动生成的 catch 块
-					e1.printStackTrace();
-				}
-				}
+								// 2.获取该Socket的输出流，用来向服务器发送信息
+								OutputStream os = socket2.getOutputStream();
+								ObjectOutputStream oos = new ObjectOutputStream(os);
+								
+								
+								oos.writeByte(1);
+								oos.writeObject(upload);
+								oos.flush();
+								
+								InputStream inputStream = socket2.getInputStream();
+								ObjectInputStream br=new ObjectInputStream(inputStream);
+								//lock[i]=br.readBoolean();
+								if(br.readBoolean()==true)
+									number++;
+								oos.close();
+								br.close();
+								socket2.close();
+							}
+
+						} catch (Exception e1) {
+							// TODO 自动生成的 catch 块
+							e1.printStackTrace();
+						}
+						if(number<(bztIP.size()/2))
+							break;
+						try {
+							Thread.sleep(2000);
+						} catch (InterruptedException e1) {
+							// TODO 自动生成的 catch 块
+							e1.printStackTrace();
+						}
+						}
+						
+						A.addPreBlockIndex(nowBlockIndex);
+						A.addInfoID();
+						A.save(path);
+						
 				
-				A.addPreBlockIndex(preBlockIndex);
-				A.addInfoID();
+				
 				
 				
 			}
 			if(event==submit2){//与服务端连接进行溯源
 				Socket socket;
 				int hospitalid;
-				System.out.println("'"+text2.getText()+"'");
+				//System.out.println("'"+text2.getText()+"'");
 				if(text2.getText().equals(""))
 					hospitalid=0;
 				else 
@@ -627,7 +677,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 					ObjectInputStream br=new ObjectInputStream(inputStream);
 
 					try {
-						MedicalRecords[] Med=(MedicalRecords[]) br.readObject();
+						 Med=(MedicalRecords[]) br.readObject();
 						for(int i=0;i<Med.length;i++){
 							String []rowValues = {String.valueOf(Med[i].getHospitalID()),Med[i].getSection(),String.valueOf(Med[i].getOperateTime())};
 							tableModel.addRow(rowValues);
@@ -661,6 +711,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 			}
 			if(event==btn_zhanghu){
 				panel_filework.removeAll();
+				
 				frame.remove(line);
 				line.repaint();
 				panel_filework.repaint();
@@ -710,7 +761,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 
 			}
 			if (event == fileworkscan_choose) {
-				
+				jfc.setVisible(true);
 				jfc.setFileSelectionMode(0);//设定只能选择到文件
 		            int state=jfc.showOpenDialog(null);//此句是打开文件选择器界面的触发语句
 		            if(state==1){
@@ -719,16 +770,28 @@ public class Interface_Main extends JFrame implements ActionListener{
 		            else{
 		                File f= jfc.getSelectedFile();//f为选择到的文件
 		                text1.setText(f.getAbsolutePath());
-				} 	
+				}
+		            jfc.setVisible(false);   
+		        
 	        }
+			if(event == btn_Application){
+				panel_filework.removeAll();
+				frame.remove(line);
+				line.repaint();
+				panel_filework.repaint();
+				
+				
+			}
 			if (event == fileworkscan_read) {
 				A= PatientCard.getPatientCard(text1.getText());
+				path=text1.getText();
+				
 				ID=A.getPatientID();
 				infoID=A.getInfoID();
 				preBlockIndex=A.getPreBlockIndex();
 				name=A.getName();
-				String out="name:"+name+"\n"+"ID:"+ID+"\n"+"infoID:"+infoID+infoID+"\n"+"preBlockIndex:"+preBlockIndex+"\n";
-				read.setText(out);
+				String out="name:"+name+"\n"+"ID:"+ID+"\n"+"infoID:"+infoID+"\n"+"preBlockIndex:"+preBlockIndex+"\n";
+				read.setText(out+A.getAllPreBlockIndex());
 			}
 		}
 	
@@ -801,6 +864,25 @@ public class Interface_Main extends JFrame implements ActionListener{
 			g.drawLine(50,185,650,185);
 			g.drawLine(50,387,650,387);
 			g.drawLine(50,440,650,440);
+		}
+	}
+	class MyTableModel extends AbstractTableModel {
+		public Vector data; 
+		public Vector titles; 
+		public int getRowCount() { 
+			return data.size()/getColumnCount(); 
+		} 
+		public int getColumnCount() { 
+			return titles.size();
+		} 
+		public Object getValueAt(int rowIndex, int columnIndex) {
+			return data.get((rowIndex*getColumnCount())+columnIndex);
+		} 
+		public void addrow(String []rowValues){
+			for(int j=0;j<3;j++) 
+			{ 
+				data.add(rowValues[j]);
+			} 
 		}
 	}
 	 
