@@ -188,6 +188,7 @@ public class Server extends Thread {
                     os = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(os);
                     POS pos = new POS();
+                    //System.out.println(count[0]);
                     oos.writeLong(count[0]);
                     oos.writeObject(pos.get_node(ipList, config.getBYZANTINE_PEER_COUNT(), count[0]));
                     oos.flush();
@@ -196,10 +197,11 @@ public class Server extends Thread {
                 } else if (mark1 == 6) {   //返回溯源结果
                     Suyuan s = (Suyuan) ois.readObject();
                     boolean hospital = (s.gethospitalID() != 0);
-                    boolean time = (s.getTime1() != null && s.getTime2() != null);
-                    boolean section = (s.getSection() != null);
+                    boolean time = (!s.getTime1() .equals("")  && !s.getTime2().equals(""));
+                    boolean section = (!s.getSection() .equals(""));
 
                     MedicalRecords[] data;
+                    ArrayList<MedicalRecords> opData = new ArrayList<MedicalRecords>();
 
                     if (hospital && time && section) {
                         data = blockService.creOpTraceToSource(
@@ -208,7 +210,8 @@ public class Server extends Thread {
                                 s.gethospitalID(),
                                 s.getSection(),
                                 LocalDate.parse(s.getTime1()),
-                                LocalDate.parse(s.getTime2())
+                                LocalDate.parse(s.getTime2()),
+                                opData
                         );
                     } else if (!hospital && time && section) {
                         data = blockService.creOpTraceToSource(
@@ -216,14 +219,16 @@ public class Server extends Thread {
                                 s.getID(),
                                 s.getSection(),
                                 LocalDate.parse(s.getTime1()),
-                                LocalDate.parse(s.getTime2())
+                                LocalDate.parse(s.getTime2()),
+                                opData
                         );
                     } else if (hospital && !time && section) {
                         data = blockService.creOpTraceToSource(
                                 s.getPreBlockIndex(),
                                 s.getID(),
                                 s.gethospitalID(),
-                                s.getSection()
+                                s.getSection(),
+                                opData
                         );
                     } else if (hospital && time && !section) {
                         data = blockService.creOpTraceToSource(
@@ -231,34 +236,38 @@ public class Server extends Thread {
                                 s.getID(),
                                 s.gethospitalID(),
                                 LocalDate.parse(s.getTime1()),
-                                LocalDate.parse(s.getTime2())
+                                LocalDate.parse(s.getTime2()),
+                                opData
                         );
                     } else if (!hospital && !time && section) {
                         data = blockService.creOpTraceToSource(
                                 s.getPreBlockIndex(),
                                 s.getID(),
-                                s.getSection()
+                                s.getSection(),
+                                opData
                         );
                     } else if (!hospital && time && !section) {
                         data = blockService.creOpTraceToSource(
                                 s.getPreBlockIndex(),
                                 s.getID(),
                                 LocalDate.parse(s.getTime1()),
-                                LocalDate.parse(s.getTime2())
+                                LocalDate.parse(s.getTime2()),
+                                opData
                         );
                     } else if (hospital && !time && !section) {
                         data = blockService.creOpTraceToSource(
                                 s.getPreBlockIndex(),
                                 s.getID(),
-                                s.gethospitalID()
+                                s.gethospitalID(),
+                                opData
                         );
                     } else {
                         data = blockService.creOpTraceToSource(
                                 s.getPreBlockIndex(),
-                                s.getID()
+                                s.getID(),
+                                opData
                         );
                     }
-
 
                     os = socket.getOutputStream();
                     ObjectOutputStream oos = new ObjectOutputStream(os);
@@ -266,6 +275,38 @@ public class Server extends Thread {
                     oos.flush();
                     oos.close();
                     os.close();
+
+                    //将对病历的查阅操作写入区块链
+                    POS pos = new POS();
+                    ArrayList<String> bztIP = pos.get_node(ipList, config.getBYZANTINE_PEER_COUNT(), count[0]);
+                    int number = 0;
+                    for(int i = 0; i < opData.size(); i++){
+                        Socket socket0;
+                        while (true){
+                            for(int j = 0; j < bztIP.size(); j++){
+                                socket0 = new Socket(bztIP.get(j),config.getPORT());
+                                OutputStream outputStream = socket0.getOutputStream();
+                                ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
+                                objectOutputStream.writeByte(1);
+                                objectOutputStream.writeObject(opData.get(i));
+                                objectOutputStream.flush();
+                                InputStream inputStream = socket0.getInputStream();
+                                ObjectInputStream br=new ObjectInputStream(inputStream);
+
+                                if(br.readBoolean()==true){
+                                    number++;
+                                }
+                                br.close();
+                                inputStream.close();
+                                objectOutputStream.close();
+                                outputStream.close();
+                                socket0.close();
+                            }
+                            if(number > bztIP.size()/2){
+                                break;
+                            }
+                        }
+                    }
                 }
 
             } catch (Exception e) {
