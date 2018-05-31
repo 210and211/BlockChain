@@ -39,5 +39,17 @@ public class Suyuan implements Serializable{
 	public String getTime2(){
 		return Time2;
 	}
+	
+	public static int random(int i){
+		double floatNumber = Math.random();
+		double number=1/(double)i;
+		int j=(int) (floatNumber/number);
+		return j;
+		
+	}
+	public static void main(String[] args){
+		System.out.println(random(5));
+		
+	}
 
 }
