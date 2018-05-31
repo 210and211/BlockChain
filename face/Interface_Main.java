@@ -54,6 +54,7 @@ import patientCard.PatientCard;
 import cryptogram.*;
 import block.*;
 import config.*;
+import patientCard.*;
 
 
 
@@ -65,7 +66,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 	JFrame frame;
 	JPanel jp_N;
 	// 上边面板的控件
-	private JButton btn_suyuan, btn_upload,btn_zhanghu,btn_Application,btn_Application_submit, close, small,submit1,submit2,fileworkscan_choose,fileworkscan_read,btn_yinsijiankong,submit_yinsi;
+	private JButton btn_suyuan, btn_upload,btn_zhanghu,btn_Application,btn_Application_submit, close, small,submit1,submit2,fileworkscan_choose,fileworkscan_choose2,fileworkscan_read,btn_yinsijiankong,submit_yinsi;
 	private JPanel panel_filework;
 	private DrawPanel line=new DrawPanel();
 	public  JTextField text1,text3,text2,text4,text5,text6,text7,text8,text9,text10,text11;
@@ -889,14 +890,32 @@ public class Interface_Main extends JFrame implements ActionListener{
 		            jfc.setVisible(false);   
 		        
 	        }
+			if (event == fileworkscan_choose2) {
+				jfc.setVisible(true);
+				jfc.setFileSelectionMode(1);//设定只能选择到文件
+		            int state=jfc.showOpenDialog(null);//此句是打开文件选择器界面的触发语句
+		            if(state==1){
+		                return;//撤销则返回
+		            }
+		            else{
+		                File f= jfc.getSelectedFile();//f为选择到的文件
+		                text10.setText(f.getAbsolutePath());
+				}
+		            jfc.setVisible(false);   
+		        
+	        }
 			if(event == btn_Application){
 				panel_filework.removeAll();
-				frame.remove(line);
-				line.repaint();
-				panel_filework.repaint();
-				
-				
-				
+
+
+
+				line.setBounds(240, 110,760, 534);
+				line.setVisible(true);
+				line.setLayout(null);
+				line.setBackground(null);
+				line.setOpaque(false);
+				frame.getContentPane().add(line);
+
 				JLabel Label1 = new JLabel("姓名");
 				Label1.setBounds(50, 20,50, 40);
 				Label1.setForeground(Color.gray);
@@ -907,44 +926,146 @@ public class Interface_Main extends JFrame implements ActionListener{
 				text1 = new JTextField();
 				text1.setBounds(100, 20, 100, 40);
 				text1.setFont(new Font("微软雅黑",Font.PLAIN,18));
-				//text1.cornerRadius = 5;
 				panel_filework.add(text1);
 
 				JLabel Label2 = new JLabel("ID");
-				Label2.setBounds(50, 80,50, 40);
+				Label2.setBounds(250, 20,30, 40);
 				Label2.setForeground(Color.gray);
 				Label2.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				Label2.setVisible(true);
 				panel_filework.add(Label2);
 
 				text2 = new JTextField();
-				text2.setBounds(100, 80, 100, 40);
+				text2.setBounds(280, 20, 100, 40);
 				text2.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				panel_filework.add(text2);
 
-				JLabel Label3 = new JLabel("生日");
-				Label3.setBounds(50, 200,50, 40);
+				JLabel Label3 = new JLabel("性别");
+				Label3.setBounds(450, 20,50, 40);
 				Label3.setForeground(Color.gray);
 				Label3.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				Label3.setVisible(true);
 				panel_filework.add(Label3);
 
 				text3 = new JTextField();
-				text3.setBounds(100, 200, 120, 40);
+				text3.setBounds(500, 20, 50, 40);
 				text3.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				panel_filework.add(text3);
 
-				JLabel Label4 = new JLabel("性别");
-				Label4.setBounds(50, 140,50, 40);
+
+				JLabel Label4 = new JLabel("年龄");
+				Label4.setBounds(50, 80,50, 40);
 				Label4.setForeground(Color.gray);
 				Label4.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				Label4.setVisible(true);
 				panel_filework.add(Label4);
 
 				text4 = new JTextField();
-				text4.setBounds(100, 140, 100, 40);
+				text4.setBounds(100, 80, 50, 40);
 				text4.setFont(new Font("微软雅黑",Font.PLAIN,18));
 				panel_filework.add(text4);
+
+				JLabel Label5 = new JLabel("生日");
+				Label5.setBounds(250, 80,50, 40);
+				Label5.setForeground(Color.gray);
+				Label5.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				Label5.setVisible(true);
+				panel_filework.add(Label5);
+
+				text5 = new JTextField();
+				text5.setBounds(300, 80, 130, 40);
+				text5.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				LocalDate today = LocalDate.now();
+				text5.setText(today.toString());
+				panel_filework.add(text5);
+
+				JLabel Label6 = new JLabel("密钥");
+				Label6.setBounds(450, 80,50, 40);
+				Label6.setForeground(Color.gray);
+				Label6.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				Label6.setVisible(true);
+
+				panel_filework.add(Label6);
+
+				text6 = new JTextField();
+				text6.setBounds(500, 80, 150, 40);
+				text6.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				//text6.setOpaque(false);
+				panel_filework.add(text6);
+
+
+				JLabel Label7 = new JLabel("身高");
+				Label7.setBounds(50, 140,50, 40);
+				Label7.setForeground(Color.gray);
+				Label7.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				Label7.setVisible(true);
+				panel_filework.add(Label7);
+
+				text7 = new JTextField();
+				text7.setBounds(100, 140, 75, 40);
+				text7.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				panel_filework.add(text7);
+
+				JLabel Label8 = new JLabel("体重");
+				Label8.setBounds(250, 140,100, 40);
+				Label8.setForeground(Color.gray);
+				Label8.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				Label8.setVisible(true);
+				panel_filework.add(Label8);
+
+				text8 = new JTextField();
+				text8.setBounds(300, 140, 100, 40);
+				text8.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				panel_filework.add(text8);
+
+
+				JLabel Label9 = new JLabel("个人描述");
+				Label9.setBounds(50, 200,100, 40);
+				Label9.setForeground(Color.gray);
+				Label9.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				Label9.setVisible(true);
+
+				panel_filework.add(Label9);
+
+				t =new JTextArea();
+				t.setEditable(true);
+				t.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				JScrollPane scroll = new JScrollPane(t);
+				//把定义的JTextArea放到JScrollPane里面去
+				//分别设置水平和垂直滚动条自动出现
+				scroll.setHorizontalScrollBarPolicy(
+						JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+				scroll.setVerticalScrollBarPolicy(
+						JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+				scroll.setBounds(50, 235, 500, 150);
+				panel_filework.add(scroll);
+
+
+				JLabel Label10 = new JLabel("保存地址");
+				Label10.setBounds(50, 390,100, 40);
+				Label10.setForeground(Color.gray);
+				Label10.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				Label10.setVisible(true);
+				panel_filework.add(Label10);
+
+				text10 = new JTextField();
+				text10.setBounds(150, 390, 250, 40);
+				text10.setFont(new Font("微软雅黑",Font.PLAIN,18));
+				panel_filework.add(text10);
+
+				fileworkscan_choose2=new JButton(new ImageIcon("image_interface/浏览1.png"));
+		        fileworkscan_choose2.setRolloverIcon(new ImageIcon("image_interface/浏览2.png"));
+		        fileworkscan_choose2.setBounds(440,388, 100, 50);
+		        fileworkscan_choose2.addActionListener(this);
+		        panel_filework.add(fileworkscan_choose2);
+				
+
+
+				
+
+
+
+				panel_filework.repaint();
 				
 				btn_Application_submit=new JButton(new ImageIcon("image_interface/提交1.png"));
 				btn_Application_submit.setRolloverIcon(new ImageIcon("image_interface/提交2.png"));
@@ -953,7 +1074,13 @@ public class Interface_Main extends JFrame implements ActionListener{
 				panel_filework.add(btn_Application_submit);
 				btn_Application_submit.addActionListener(this);
 				
+				panel_filework.repaint();
 				
+				
+			}
+			if(event==btn_Application_submit){
+				PatientCard patientCard1 = new PatientCard(Integer.parseInt(text2.getText()),text1.getText(),config.getHOSPITAL_ID(),text6.getText());
+		        patientCard1.save(text10.getText()+"\\"+text1.getText()+".card");
 			}
 			if (event == fileworkscan_read) {
 				A= PatientCard.getPatientCard(text1.getText());
@@ -969,15 +1096,13 @@ public class Interface_Main extends JFrame implements ActionListener{
 			if(event ==submit_yinsi){
 				tableModel.setRowCount( 0 );
 				Socket socket;
-				int hospitalid;
+
 				//System.out.println("'"+text2.getText()+"'");
-				if(text2.getText().equals(""))
-					hospitalid=0;
-				else 
-					hospitalid=Integer.parseInt(text2.getText());
+
 					
 				Suyuan S=new Suyuan( Integer.parseInt(text1.getText()), text3.getText(), text4.getText());
 				try {
+					
 					socket = new Socket(config.getIP_LIST().get(0), config.getPORT());
 					OutputStream os = socket.getOutputStream();
 					ObjectOutputStream oos = new ObjectOutputStream(os);
