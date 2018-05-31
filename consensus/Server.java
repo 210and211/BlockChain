@@ -307,6 +307,18 @@ public class Server extends Thread {
                             }
                         }
                     }
+                } else if(mark1 == 7){
+                    Suyuan s = (Suyuan) ois.readObject();
+                    MedicalRecords[] opData = blockService.ObtOpTraceToSource(
+                            s.gethospitalID(),
+                            LocalDate.parse(s.getTime1()),
+                            LocalDate.parse(s.getTime2()));
+                    os = socket.getOutputStream();
+                    ObjectOutputStream oos = new ObjectOutputStream(os);
+                    oos.writeObject(opData);
+                    oos.flush();
+                    oos.close();
+                    os.close();
                 }
 
             } catch (Exception e) {
