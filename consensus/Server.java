@@ -43,7 +43,7 @@ public class Server extends Thread {
         this.peer = peer;
         this.count = count;
         this.locked = locked;
-        this.blockService = new BlockService(peer);
+        this.blockService = new BlockService(peer,count);
     }
 
     public long getBlockChainHigh() {
@@ -302,12 +302,13 @@ public class Server extends Thread {
                                 outputStream.close();
                                 socket0.close();
                             }
-                            if(number > bztIP.size()/2){
+                            if(number < bztIP.size()/2){
                                 break;
                             }
+                            Thread.sleep(1000);
                         }
                     }
-                } else if(mark1 == 7){
+                }else if(mark1 == 7){
                     Suyuan s = (Suyuan) ois.readObject();
                     MedicalRecords[] opData = blockService.ObtOpTraceToSource(
                             s.gethospitalID(),
