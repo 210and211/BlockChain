@@ -5,12 +5,15 @@ import block.BlockService;
 import block.MedicalRecords;
 import config.Configuration;
 import ip_net.My_ip;
+import org.hive2hive.core.api.interfaces.IFileManager;
+import org.hive2hive.core.exceptions.NoPeerConnectionException;
+import org.hive2hive.core.exceptions.NoSessionException;
+import org.hive2hive.processframework.exceptions.InvalidProcessStateException;
+import org.hive2hive.processframework.exceptions.ProcessExecutionException;
 import p2pPeer.Peer;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.net.UnknownHostException;
 import java.util.*;
 
@@ -189,11 +192,26 @@ public class Main {
         }else {
             peer = new Peer(config.getP2P_NODE_IP(),config.getBLOCKCHAIN_SAVE_PATH());
         }
+        //扫描文件夹下原有的区块
+        File blockDir = peer.getFileAgent().getRoot();
+        String[] fileSet = blockDir.list();
+        IFileManager fileManager = peer.getNode().getFileManager();
+        File block;
+        for(int i = 0; i < fileSet.length; i++){
+            block = new File(peer.getFileAgent().getRoot(),fileSet[i]);
+            if(block.isFile()){
+                try {
+                    fileManager.createAddProcess(block).execute();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
 
-        BlockService bs = new BlockService(peer);
+        BlockService bs = new BlockService(peer,count);
 
         Boolean locked = false;
-
+        System.out.println(count[0]);
         Server server = new Server(peer, count, locked); // 开启服务端
         server.start();
         String name = config.getSERVER_NAME();
