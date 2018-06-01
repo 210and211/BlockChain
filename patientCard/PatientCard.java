@@ -6,6 +6,10 @@ import java.util.HashMap;
 
 public class PatientCard implements Serializable{
     /**
+	 * 
+	 */
+	private static final long serialVersionUID = -794532753120785470L;
+	/**
      * 生成病历卡文件
      * 增加preBlockIndex
      * infoID++
@@ -15,15 +19,14 @@ public class PatientCard implements Serializable{
     private String name;                        //患者姓名
     private HashMap<Integer, String> key;           //患者在各个医院的密钥
     private int infoID;                         //患者下一次要生成的病历的序号
-    private ArrayList<Long> preBlockIndex;      //患者最近一个病历所在区块号
+    private ArrayList<Long> preBlockIndex=new ArrayList<>();      //患者最近一个病历所在区块号
 
-    private PatientCard(long patientID, String name, int hospitalID, String key){
+    public PatientCard(long patientID, String name, int hospitalID, String key){
         this.patientID = patientID;
         this.name = name;
         this.key = new HashMap<Integer,String>();
         this.key.put(hospitalID,key);
         infoID = 1;         //一张新病历卡病历从1开始计数
-        preBlockIndex = null;
     }
 
     public void save(String filePath){
@@ -74,7 +77,9 @@ public class PatientCard implements Serializable{
     }
 
     public long getPreBlockIndex(){
-        return preBlockIndex.indexOf(preBlockIndex.size() - 1);
+    	if(preBlockIndex.size()==0)
+    		return 0;
+        return preBlockIndex.get(preBlockIndex.size() - 1);
     }
 
     public long getPreBlockIndex(long index){
@@ -111,4 +116,3 @@ public class PatientCard implements Serializable{
         patientCard2.save("2.card");
     }
 }
-
