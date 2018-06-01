@@ -410,15 +410,14 @@ public class BlockService implements Serializable {
         return -1;
     }
 
-    public MedicalRecords[] ObtOpTraceToSource(long hospitalID, LocalDate latestTime, LocalDate oldstTime) {
-        Configuration config = new Configuration();
+    public MedicalRecords[] ObtOpTraceToSource(int hospitalID, LocalDate oldstTime, LocalDate latestTime) {
         ArrayList<MedicalRecords> data = new ArrayList<MedicalRecords>();
         MedicalRecords[] tmpData;
-        for (long i = count[0] - 1; i >= 0; i--) {
+        for (long i = count[0] - 1; i > 0; i--) {
             tmpData = getblock(i).data;
             boolean flag = false;
             for (int j = 0; j < tmpData.length; j++) {
-                if (tmpData[j].getOpHospitalID() == hospitalID) {
+                if (!tmpData[j].getCreateOrObtion() && tmpData[j].getOpHospitalID() == hospitalID) {
                     flag = true;
                     if (tmpData[j].getOperateTime().isBefore(latestTime) && oldstTime.isBefore(tmpData[j].getOperateTime())) {
                         data.add(tmpData[j]);
@@ -429,6 +428,6 @@ public class BlockService implements Serializable {
                 break;
             }
         }
-        return (MedicalRecords[]) data.toArray();
+        return data.toArray(new MedicalRecords[]{});
     }
 }
