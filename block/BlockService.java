@@ -24,11 +24,11 @@ public class BlockService implements Serializable {
     }
 
     public BlockService(Peer peer) {
-    	 fileManager = peer.getNode().getFileManager();
-         rootPath = peer.getFileAgent().getRoot();
+        fileManager = peer.getNode().getFileManager();
+        rootPath = peer.getFileAgent().getRoot();
     }
     public BlockService(){
-    	
+
     }
 
     //获取区块链的第一个区块
@@ -298,7 +298,7 @@ public class BlockService implements Serializable {
                 if (patientIndex != -1) {
                     for (int i = patientIndex; i < tmpData.length; i++) {       //遍历信息
                         if (tmpData[i].getPatientID() == patientID &&
-                                tmpData[i].getSection() == section &&
+                                tmpData[i].getSection().equals(section) &&
                                 tmpData[i].getCreateOrObtion() == true) { //匹配信息
                             data.add(tmpData[i]);                               //成功匹配的放入信息集中
                             /**产生查阅病历的信息**/
@@ -421,10 +421,11 @@ public class BlockService implements Serializable {
                     flag = true;
                     if (tmpData[j].getOperateTime().isBefore(latestTime) && oldstTime.isBefore(tmpData[j].getOperateTime())) {
                         data.add(tmpData[j]);
+                        flag = false;
                     }
                 }
             }
-            if (flag && data.size() != 0) {
+            if (flag) {
                 break;
             }
         }
