@@ -761,6 +761,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 						A.addPreBlockIndex(nowBlockIndex);
 						A.addInfoID();
 						A.save(path);
+						preBlockIndex=nowBlockIndex;
 						
 				
 				
@@ -1083,6 +1084,7 @@ public class Interface_Main extends JFrame implements ActionListener{
 		        patientCard1.save(text10.getText()+"\\"+text1.getText()+".card");
 			}
 			if (event == fileworkscan_read) {
+				System.out.println(text1.getText());
 				A= PatientCard.getPatientCard(text1.getText());
 				path=text1.getText();
 				
