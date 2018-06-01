@@ -229,6 +229,7 @@ public class BlockService implements Serializable {
             indexArr.remove(blockIndex);
             indexArrIt = indexArr.iterator();
         }
+        System.out.println("cao");
         return data.toArray(new MedicalRecords[]{});
     }
 
@@ -413,13 +414,14 @@ public class BlockService implements Serializable {
     public MedicalRecords[] ObtOpTraceToSource(int hospitalID, LocalDate oldstTime, LocalDate latestTime) {
         ArrayList<MedicalRecords> data = new ArrayList<MedicalRecords>();
         MedicalRecords[] tmpData;
-        for (long i = count[0] - 1; i > 0; i--) {
+        for (long i = count[0]; i > 0; i--) {
             tmpData = getblock(i).data;
             boolean flag = false;
             for (int j = 0; j < tmpData.length; j++) {
                 if (!tmpData[j].getCreateOrObtion() && tmpData[j].getOpHospitalID() == hospitalID) {
                     flag = true;
-                    if (tmpData[j].getOperateTime().isBefore(latestTime) && oldstTime.isBefore(tmpData[j].getOperateTime())) {
+                    if ((tmpData[j].getOperateTime().isBefore(latestTime) || tmpData[j].getOperateTime().isEqual(latestTime)) &&
+                    		(oldstTime.isBefore(tmpData[j].getOperateTime()) || oldstTime.isEqual(tmpData[j].getOperateTime()))) {
                         data.add(tmpData[j]);
                         flag = false;
                     }
